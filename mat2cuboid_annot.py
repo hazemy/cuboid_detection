@@ -39,7 +39,7 @@ def _todict(matobj):
             dict[strg] = elem
     return dict
 
-matdata = loadmat('Annotations.mat')
+# matdata = loadmat('Annotations.mat')
 # print(matdata['data'][0].object.type)
 # print(matdata['data'][842].object)
 # print(type(matdata['data'][6].object[2])) #numpy array of scipy mat_struct objects
@@ -47,16 +47,18 @@ matdata = loadmat('Annotations.mat')
 # print(type(matdata['data'][0].object))
 # print(isinstance(matdata['data'][842].object, np.ndarray))
 
-def mat2cuboid_annot (filename):
+def mat2cuboid_annot (annot_file_dir):
     '''
     converts input mat file to a list of dicts
     ouput: cuboid annotation (intemediate format)
     '''
-    matdata = loadmat('Annotations.mat')
+    
+    annot_file = annot_file_dir.split('/')[-1]
+    matdata = loadmat(annot_file)
     cuboid_dataset_list = [] #a list of dicts (for entire dataset)
     for i in range(len(matdata['data'])):
         '''
-        Parses obtained mat data (dict) into an easily accessible (proper) dict
+        Parses the obtained mat data (dict) into an easily accessible (proper) dict
         '''
         im_dict = {} #per image dict
         im_dict['image'] = matdata['data'][i].im
@@ -91,5 +93,23 @@ def mat2cuboid_annot (filename):
         cuboid_dataset_list.append(im_dict)
     return cuboid_dataset_list
         
+
+if __name__ == '__main__':
+    annot_file_dir = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid/Annotations.mat'
+    cuboid_annot = mat2cuboid_annot(annot_file_dir)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
