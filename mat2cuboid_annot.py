@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 import json
 import scipy.io as spio
@@ -53,8 +54,8 @@ def mat2cuboid_annot (annot_file_dir):
     ouput: cuboid annotation (intemediate format)
     '''
     
-    annot_file = annot_file_dir.split('/')[-1]
-    matdata = loadmat(annot_file)
+    #annot_file = annot_file_dir.split('/')[-1]
+    matdata = loadmat(annot_file_dir)
     cuboid_dataset_list = [] #a list of dicts (for entire dataset)
     for i in range(len(matdata['data'])):
         '''
@@ -95,7 +96,7 @@ def mat2cuboid_annot (annot_file_dir):
         
 
 if __name__ == '__main__':
-    annot_file_dir = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid/Annotations.mat'
+    annot_file_dir = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid/mini_dataset.mat'
     cuboid_annot = mat2cuboid_annot(annot_file_dir)
 
 
