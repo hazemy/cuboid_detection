@@ -23,7 +23,7 @@ def cuboid_annot2detectron_format(dataset_dir):
     
     '''
     # cuboid_annot = mat2cuboid_annot('Annotations.mat')
-    cubiod_annot = cuboid_annot = mat2cuboid_annot(os.path.join(dataset_dir, 'Annotations.mat')) 
+    cubiod_annot = cuboid_annot = mat2cuboid_annot(os.path.join(dataset_dir, 'mini_dataset.mat')) 
     # dataset_dir = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid'
     dataset_list = []
     for i in range(len(cuboid_annot)): #per image loop
@@ -43,12 +43,12 @@ def cuboid_annot2detectron_format(dataset_dir):
         record['height'] = height
         record['width'] = width
         
-        image_id = record['file_name'].split('/')[-1] 
-                                                  #use last section of image directory as image id
+        image_id = record['file_name'].split('/')[-1]
+        image_id = image_id.split('.')[-2] #use last section of image directory as image id
         record['image_id'] = image_id
         
         annotations = []
-        bbox_idx = 0
+        # bbox_idx = 0 #to be used for retrieving multiple instances
         for j in range(len(entry['object'])): #per object instance loop
             instance = {}
             keypoints = []
@@ -62,23 +62,23 @@ def cuboid_annot2detectron_format(dataset_dir):
             #     keypoints = np.zeros(24) #x,y coor and v for each vertex
             #     keypoints.insert(k+2, v_list[k])
     
-            #instance['keypoints'] = keypoints
+            # instance['keypoints'] = keypoints
             if (entry['object'][j]['type'] == 'cuboid'):
-                instance['category_id'] = 1 #foreground (cuboid)
+                instance['category_id'] = 0 #foreground (cuboid)
             else:
-                instance['category_id'] = 2 #background 
+                instance['category_id'] = 1 #background 
                                              #ToDo: leave category empty for background?   
             
-            # bbox = list(np.zeros(4))
+            # bbox = [10, 200, 20, 250]
             try:
-                bbox = get_2d_bbox(image_id, bbox_idx) #index of bbox to be returned
-                bbox_idx = bbox_idx + 1
+                bbox = get_2d_bbox(image_id, height, width) # add index of bbox to be returned (for multiple instances)
+                # bbox_idx = bbox_idx + 1
             except IndexError:
                 print('2D BBox could not be retreived!')
                 return
 
-            instance['bbox'] = bbox
-            instance['bbox_mode'] = BoxMode.XYXY_ABS #ToDo: why in floating pt. ?
+            instance['bbox'] = bbox #ToDo: why in floating pt. ?
+            instance['bbox_mode'] = BoxMode.XYWH_ABS 
             annotations.append(instance)
         record['annotations'] = annotations   
         dataset_list.append(record)
