@@ -7,8 +7,8 @@ Created on Sat Jul  4 17:51:02 2020
 """
 
 
-from mat2cuboid_annot import mat2cuboid_annot
-from get_2d_bbox import get_2d_bbox
+# from mat2cuboid_annot import mat2cuboid_annot
+from get_2d_bbox import get_bbox_abs, get_bbox_xywh
 import os
 import cv2
 import json
@@ -16,45 +16,54 @@ import numpy as np
 from detectron2.structures import BoxMode
 
 
-def cuboid_annot2detectron_format(dataset_dir):
+def json2detectron_format(dataset_dir):
     '''
     input: dataset directory containing all images (needed in order to append directory of filename path)
     ouput: standard detectron 2 dataset format (json_like)
     
     '''
-    # cuboid_annot = mat2cuboid_annot('Annotations.mat')
-    cubiod_annot = cuboid_annot = mat2cuboid_annot(os.path.join(dataset_dir, 'mini_dataset.mat')) 
-    # dataset_dir = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid'
+    json_file = os.path.join(dataset_dir, 'state_partial.json')
+    
+    with open(json_file) as f:
+        annot_list = json.load(f)
+        
     dataset_list = []
-    for i in range(len(cuboid_annot)): #per image loop
+    for i in range(len(annot_list)): #per image loop
         '''
         converts the intermediate format (cuboid annotation) to the standard dataset format for 
         Detectron 2, as by: https://detectron2.readthedocs.io/tutorials/datasets.html
         '''
         record = {}
         
-        entry = cuboid_annot[i]
-        img_path = os.path.join(dataset_dir, entry['image'])
+        entry = annot_list[i]
+        # img_path = os.path.join(dataset_dir, entry['fileName'])
         # record['filename'] = os.path.join(dataset_dir, img_path)
+        
+        image_id = entry['fileName'].split('/')[-1]
+        image_id = image_id.split('\\')[-1]
+        image_id = image_id.split('.')[-2] #use last section of image directory as image id
+        record['image_id'] = image_id
+        
+        img_path = os.path.join(dataset_dir, image_id)
         record['file_name'] = img_path
-
         
         height, width = cv2.imread(img_path).shape[:2]
         record['height'] = height
         record['width'] = width
         
         image_id = record['file_name'].split('/')[-1]
+        image_id = image_id.split('\\')[-1]
         image_id = image_id.split('.')[-2] #use last section of image directory as image id
         record['image_id'] = image_id
         
         annotations = []
         # bbox_idx = 0 #to be used for retrieving multiple instances
-        for j in range(len(entry['object'])): #per object instance loop
+        for j in range(len(entry['squares'])): #per object instance loop
             instance = {}
             keypoints = []
-            vertices = entry['object'][j]['position'] #x,y coordinates of vertices
+            # vertices = entry['object'][j]['position'] #x,y coordinates of vertices
             # v_list = np.ones(8) #visibility of vertices - entry needed by detectron keypoints format
-            keypoints = [val for pair in zip(vertices[0], vertices[1]) for val in pair]  #interleaves the x,y coordinates in one list
+            # keypoints = [val for pair in zip(vertices[0], vertices[1]) for val in pair]  #interleaves the x,y coordinates in one list
              
             #ToDo: interleave coordinate pair with visibility value
             # keypoints = np.zeros(len(pairs)+len(ones)) #x,y coor and v for each vertex                                    
@@ -63,7 +72,8 @@ def cuboid_annot2detectron_format(dataset_dir):
             #     keypoints.insert(k+2, v_list[k])
     
             # instance['keypoints'] = keypoints
-            if (entry['object'][j]['type'] == 'cuboid'):
+            
+            if entry['squares']: #i.e: not empty
                 instance['category_id'] = 0 #foreground (cuboid)
             else:
                 instance['category_id'] = 1 #background 
@@ -71,13 +81,15 @@ def cuboid_annot2detectron_format(dataset_dir):
             
             # bbox = [10, 200, 20, 250]
             try:
-                bbox = get_2d_bbox(image_id, height, width) # add index of bbox to be returned (for multiple instances)
+                bbox_raw = entry['squares']
+                bbox_abs = get_bbox_abs(bbox_raw, height, width)
+                bbox_xywh = get_bbox_xywh(bbox_abs)
                 # bbox_idx = bbox_idx + 1
             except IndexError:
                 print('2D BBox could not be retreived!')
                 return
 
-            instance['bbox'] = bbox #ToDo: why in floating pt. ?
+            instance['bbox'] = bbox_xywh #ToDo: why in floating pt. ?
             instance['bbox_mode'] = BoxMode.XYWH_ABS 
             annotations.append(instance)
         record['annotations'] = annotations   
@@ -93,7 +105,7 @@ def cuboid_annot2detectron_format(dataset_dir):
 if __name__ == '__main__':
     dataset_dir = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid'
     # cuboid_annot = mat2cuboid_annot(os.path.join(dataset_dir, 'Annotations.mat')) 
-    dataset_list = cuboid_annot2detectron_format(dataset_dir)
+    dataset_list = json2detectron_format(dataset_dir)
     
     
     
