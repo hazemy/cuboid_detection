@@ -39,9 +39,9 @@ def do_training(train):
     trainer = DefaultTrainer(cfg) 
     if train:
         trainer.resume_or_load(resume=False)
+        trainer.train() 
     else:
         trainer.resume_or_load(resume=True)
-    trainer.train() #a 'trained' trainer is needed by the evaluator (not enough to load weights to cfg)
     return trainer, cfg
 
 # cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
