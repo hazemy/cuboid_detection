@@ -23,7 +23,7 @@ def cuboid_annot2detectron_format(dataset_dir):
     
     '''
     # cuboid_annot = mat2cuboid_annot('Annotations.mat')
-    cubiod_annot = cuboid_annot = mat2cuboid_annot(os.path.join(dataset_dir, 'mini_dataset.mat')) 
+    cuboid_annot = mat2cuboid_annot(os.path.join(dataset_dir, 'mini_dataset.mat')) 
     # dataset_dir = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid'
     dataset_list = []
     for i in range(len(cuboid_annot)): #per image loop
