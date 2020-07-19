@@ -16,23 +16,21 @@ import numpy as np
 from detectron2.structures import BoxMode
 
 
-def json2detectron_format(dataset_dir):
+def json2detectron_format(annot_file):
     '''
-    input: dataset directory containing all images (needed in order to append directory of filename path)
+    input: annotation file containing all images
     ouput: standard detectron 2 dataset format (json_like)
+    It is required that all images are in an 'images' folder in the same 
+    directory as the annotation file
     
     '''
-    json_file = os.path.join(dataset_dir, 'state_partial.json')
+    # json_file = os.path.join(annot_file, 'state_partial.json')
     
-    with open(json_file) as f:
+    with open(annot_file) as f:
         annot_list = json.load(f)
         
     dataset_list = []
     for i in range(len(annot_list)): #per image loop
-        '''
-        converts the intermediate format (cuboid annotation) to the standard dataset format for 
-        Detectron 2, as by: https://detectron2.readthedocs.io/tutorials/datasets.html
-        '''
         record = {}
         
         entry = annot_list[i]
@@ -44,18 +42,14 @@ def json2detectron_format(dataset_dir):
         image_id = image_id.split('.')[-2] #use last section of image directory as image id
         record['image_id'] = image_id
         
-        img_path = os.path.join(dataset_dir, image_id)
+        images_dir = annot_file.split('/')[:-1]
+        img_path = os.path.join('/', *images_dir, 'images', image_id + '.jpg') #construct path to images folder. * used to force accepting lists
         record['file_name'] = img_path
         
         height, width = cv2.imread(img_path).shape[:2]
         record['height'] = height
         record['width'] = width
-        
-        image_id = record['file_name'].split('/')[-1]
-        image_id = image_id.split('\\')[-1]
-        image_id = image_id.split('.')[-2] #use last section of image directory as image id
-        record['image_id'] = image_id
-        
+
         annotations = []
         # bbox_idx = 0 #to be used for retrieving multiple instances
         for j in range(len(entry['squares'])): #per object instance loop
@@ -103,9 +97,9 @@ def json2detectron_format(dataset_dir):
     
 
 if __name__ == '__main__':
-    dataset_dir = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid'
+    annot_file = '/home/porthos/masters_thesis/datasets/dataset_all/state_partial.json'
     # cuboid_annot = mat2cuboid_annot(os.path.join(dataset_dir, 'Annotations.mat')) 
-    dataset_list = json2detectron_format(dataset_dir)
+    dataset_list = json2detectron_format(annot_file)
     
     
     
