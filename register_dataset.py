@@ -28,7 +28,7 @@ from detectron2.utils.visualizer import Visualizer
 
     
 
-annot_file = '/home/porthos/masters_thesis/datasets/dataset_all/state_partial.json'
+annot_file = '/home/porthos/masters_thesis/datasets/partial_dataset/state_partial.json'
 
 dataset_list = json2detectron_format(annot_file)
 train_dataset, val_dataset, test_dataset = split_dataset(dataset_list, 0.6, 0.2)
