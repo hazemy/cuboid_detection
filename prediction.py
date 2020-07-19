@@ -39,34 +39,37 @@ def do_prediction_and_visualization(dataset, cfg):
     metadata=MetadataCatalog.get(dataset)
     # label=MetadataCatalog.get('cuboid_dataset_val').thing_classes 
     predictor = get_predictor(dataset, cfg)
-    for d in random.sample(dataset_dicts, 10): 
-    # for d in dataset_dicts:   
-        # if d['annotations']:
-        im = cv2.imread(d["file_name"])
-        outputs = predictor(im)
-        # print(outputs)
-        v = Visualizer(im[:, :, ::-1],
-                       metadata=metadata,
-                       scale=1, 
-        )
-        # print('Instances are: {}'.format(outputs['instances']))
-        # print(outputs['instances'].pred_classes)
-        # output_instances = outputs['instances'].pred_boxes.to('cpu')
-        output_instances = outputs['instances'].to('cpu')
-        pred = output_instances.pred_classes
-        # print(pred.tolist())
-        # print(list(pred.size())[0])
-        classes=[]
-        for i in range(len(pred.tolist())):
-            classes.append('cuboid')
-        scores = output_instances.scores
-        labels = ["{} {:.0f}%".format(l, s * 100) for l, s in zip(classes, scores)]
-        out = v.overlay_instances(boxes=output_instances.pred_boxes, labels=labels)
-        final_img = cv2.resize(out.get_image()[:, :, ::-1], (900,900))
-        cv2.imshow('Predication & GT:   ' + d['image_id'] + '.jpg', final_img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()  
-        # print(output_instances.get_centers())
+    # for d in random.sample(dataset_dicts, 10): 
+    for d in dataset_dicts:   
+        if d['annotations']: #display +ve images only
+            im = cv2.imread(d["file_name"])
+            outputs = predictor(im)
+            # print(outputs)
+            v = Visualizer(im[:, :, ::-1],
+                           metadata=metadata,
+                           scale=1, 
+            )
+            # print('Instances are: {}'.format(outputs['instances']))
+            # print(outputs['instances'].pred_classes)
+            # output_instances = outputs['instances'].pred_boxes.to('cpu')
+            output_instances = outputs['instances'].to('cpu')
+            pred = output_instances.pred_classes
+            # print(pred.tolist())
+            # print(list(pred.size())[0])
+            classes=[] 
+            for i in range(len(pred.tolist())):
+                classes.append('cuboid')
+            scores = output_instances.scores
+            labels = ["{} {:.0f}%".format(l, s * 100) for l, s in zip(classes, scores)]
+            out = v.overlay_instances(boxes=output_instances.pred_boxes, labels=labels)
+            final_img = cv2.resize(out.get_image()[:, :, ::-1], (900,900))
+            cv2.imshow('Predication & GT:   ' + d['image_id'] + '.jpg', final_img)
+            k = cv2.waitKey(0)
+            if k == 27: #esc key for stop
+                cv2.destroyAllWindows()
+                break
+            cv2.destroyAllWindows()  
+            # print(output_instances.get_centers())
         
    
 if __name__=='__main__':
