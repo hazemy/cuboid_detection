@@ -39,7 +39,7 @@ def do_prediction_and_visualization(dataset, cfg):
     metadata=MetadataCatalog.get(dataset)
     # label=MetadataCatalog.get('cuboid_dataset_val').thing_classes 
     predictor = get_predictor(dataset, cfg)
-    # for d in random.sample(dataset_dicts, 10): 
+    # for d in random.sample(dataset_dicts, 50): 
     for d in dataset_dicts:   
         if d['annotations']: #display +ve images only
             im = cv2.imread(d["file_name"])
@@ -61,6 +61,7 @@ def do_prediction_and_visualization(dataset, cfg):
                 classes.append('cuboid')
             scores = output_instances.scores
             labels = ["{} {:.0f}%".format(l, s * 100) for l, s in zip(classes, scores)]
+            gt = v.draw_dataset_dict(d) #display ground truth annotation
             out = v.overlay_instances(boxes=output_instances.pred_boxes, labels=labels)
             final_img = cv2.resize(out.get_image()[:, :, ::-1], (900,900))
             cv2.imshow('Predication & GT:   ' + d['image_id'] + '.jpg', final_img)
