@@ -8,7 +8,8 @@ Created on Sun Jul  5 04:22:26 2020
 
 from detectron2.data import DatasetCatalog, MetadataCatalog
 # from mat2cuboid_annot import mat2cuboid_annot
-from cuboid_annot2detectron_format import cuboid_annot2detectron_format
+# from cuboid_annot2detectron_format import cuboid_annot2detectron_format
+from json2detectron_format import json2detectron_format
 from dataset_splitter import split_dataset
 # import os
 import cv2
@@ -27,9 +28,9 @@ from detectron2.utils.visualizer import Visualizer
 
     
 
-# if __name__ == '__main__':
-dataset_dir = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid'
-dataset_list = cuboid_annot2detectron_format(dataset_dir)
+annot_file = '/home/porthos/masters_thesis/datasets/dataset_all/state_partial.json'
+
+dataset_list = json2detectron_format(annot_file)
 train_dataset, val_dataset, test_dataset = split_dataset(dataset_list, 0.6, 0.2)
 # DatasetCatalog.register('cuboid_dataset' + '_train', lambda: cuboid_annot2detectron_format(dataset_dir + '/train'))
 
