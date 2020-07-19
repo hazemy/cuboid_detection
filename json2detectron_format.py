@@ -97,7 +97,7 @@ def json2detectron_format(annot_file):
     
 
 if __name__ == '__main__':
-    annot_file = '/home/porthos/masters_thesis/datasets/dataset_all/state_partial.json'
+    annot_file = '/home/porthos/masters_thesis/datasets/partial_dataset/state_partial.json'
     # cuboid_annot = mat2cuboid_annot(os.path.join(dataset_dir, 'Annotations.mat')) 
     dataset_list = json2detectron_format(annot_file)
     
