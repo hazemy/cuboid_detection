@@ -68,7 +68,7 @@ def split_pos_neg(dataset_list):
     
 if __name__ == '__main__':
     # dataset_list = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid'
-    annot_file = '/home/porthos/masters_thesis/datasets/dataset_all/state_partial.json'   
+    annot_file = '/home/porthos/masters_thesis/datasets/partial_dataset/state_partial.json'   
     # dataset_list = cuboid_annot2detectron_format(dataset_dir)
     dataset_list = json2detectron_format(annot_file)
     # pos_dataset, neg_dataset = split_pos_neg(dataset_list)
