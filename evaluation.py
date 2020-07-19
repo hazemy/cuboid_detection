@@ -26,7 +26,9 @@ def do_evaluation(dataset, trainer, cfg):
     # cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (cuboid)
     # trainer=DefaultTrainer(cfg)
     # trainer.resume_or_load(resume=True)
-    evaluator = COCOEvaluator(dataset, cfg, False, output_dir="./output/")
+    output_dir = os.path.join(cfg.OUTPUT_DIR, 'evaluation')
+    # evaluator = COCOEvaluator(dataset, cfg, False, output_dir="./output/")
+    evaluator = COCOEvaluator(dataset, cfg, False, output_dir=output_dir)
     data_loader = build_detection_test_loader(cfg, dataset)
     print(inference_on_dataset(trainer.model, data_loader, evaluator)) #takes inputs (through the dataloader-2nd arg), 
                                        #outputs of the trained model(1st arg), and the method evaluation (evaluator-3rd arg)
