@@ -37,10 +37,11 @@ def do_prediction_and_visualization(dataset, cfg):
     # dataset = 'cuboid_dataset_val'
     dataset_dicts = DatasetCatalog.get(dataset)
     metadata=MetadataCatalog.get(dataset)
-    # label=MetadataCatalog.get('cuboid_dataset_val').thing_classes
-    # for d in random.sample(dataset_dicts, 3):  
+    # label=MetadataCatalog.get('cuboid_dataset_val').thing_classes 
     predictor = get_predictor(dataset, cfg)
-    for d in dataset_dicts:    
+    for d in random.sample(dataset_dicts, 10): 
+    # for d in dataset_dicts:   
+        # if d['annotations']:
         im = cv2.imread(d["file_name"])
         outputs = predictor(im)
         # print(outputs)
@@ -61,8 +62,8 @@ def do_prediction_and_visualization(dataset, cfg):
         scores = output_instances.scores
         labels = ["{} {:.0f}%".format(l, s * 100) for l, s in zip(classes, scores)]
         out = v.overlay_instances(boxes=output_instances.pred_boxes, labels=labels)
-        final_img = cv2.resize(out.get_image()[:, :, ::-1], (500,500))
-        cv2.imshow('2D BB', final_img)
+        final_img = cv2.resize(out.get_image()[:, :, ::-1], (900,900))
+        cv2.imshow('Predication & GT:   ' + d['image_id'] + '.jpg', final_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()  
         # print(output_instances.get_centers())
