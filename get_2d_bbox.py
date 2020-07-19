@@ -29,7 +29,7 @@ def get_2d_bbox (cuboid_image_id, height, width): #supports images with 1 bbox f
         if (bb_image_id == cuboid_image_id):
             bbox = bbox_annot_list[i]['squares']
             # bbox_scales = bbox_annot_list[i]['scale']
-            print('Found at index {}'.format(i))
+            # print('Found at index {}'.format(i))
             # selected_bbox = bbox[bbox_idx]
             bbox_abs = get_bbox_abs(bbox, height, width) #ToDo: extract annotation according to box mode
             bbox_xywh = get_bbox_xywh(bbox_abs) 
@@ -82,7 +82,7 @@ def get_bbox_xywh (bbox_abs): #(x,y) is that of the top-left corner
     # bbox_conv = [x_min, y_min, w, h] #converted bbox
     bbox_xywh = [x_min, y_min, w, h] #converted bbox
     # bbox_xywh.append(bbox_conv)
-    print(bbox_xywh)
+    # print(bbox_xywh)
     return bbox_xywh
 
 
