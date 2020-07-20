@@ -23,19 +23,15 @@ def json2detectron_format(annot_file):
     It is required that all images are in an 'images' folder in the same 
     directory as the annotation file
     
-    '''
-    # json_file = os.path.join(annot_file, 'state_partial.json')
-    
+    '''    
     with open(annot_file) as f:
         annot_list = json.load(f)
         
     dataset_list = []
-    for i in range(len(annot_list)): #per image loop
+    for annot in annot_list: #per image loop
         record = {}
         
-        entry = annot_list[i]
-        # img_path = os.path.join(dataset_dir, entry['fileName'])
-        # record['filename'] = os.path.join(dataset_dir, img_path)
+        entry = annot
         
         image_id = entry['fileName'].split('/')[-1]
         image_id = image_id.split('\\')[-1]
@@ -52,7 +48,8 @@ def json2detectron_format(annot_file):
 
         annotations = []
         # bbox_idx = 0 #to be used for retrieving multiple instances
-        for j in range(len(entry['squares'])): #per object instance loop
+        # for j in range(len(entry['squares'])): #per object instance loop
+        for bbox in entry['squares']: #per object instance loop
             instance = {}
             keypoints = []
             # vertices = entry['object'][j]['position'] #x,y coordinates of vertices
@@ -67,18 +64,15 @@ def json2detectron_format(annot_file):
     
             # instance['keypoints'] = keypoints
             
-            if entry['squares']: #i.e: not empty
+            if bbox: #non-empty annotations
                 instance['category_id'] = 0 #foreground (cuboid)
             else:
                 instance['category_id'] = 1 #background 
                                              #ToDo: leave category empty for background?   
             
-            # bbox = [10, 200, 20, 250]
             try:
-                bbox_raw = entry['squares']
-                bbox_abs = get_bbox_abs(bbox_raw, height, width)
+                bbox_abs = get_bbox_abs(bbox, height, width)
                 bbox_xywh = get_bbox_xywh(bbox_abs)
-                # bbox_idx = bbox_idx + 1
             except IndexError:
                 print('2D BBox could not be retreived!')
                 return
