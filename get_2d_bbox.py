@@ -9,57 +9,56 @@ Created on Sun Jul  5 18:40:29 2020
 import os
 import json
 import cv2
-import numpy as np
-from bbox_cv2_vis import draw_bbox
+
     
 
-dataset_dir = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid'
-json_file = os.path.join(dataset_dir, 'state.json')
+# dataset_dir = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid'
+# json_file = os.path.join(dataset_dir, 'state.json')
 
-with open(json_file) as f:
-    bbox_annot_list = json.load(f)
+# with open(json_file) as f:
+#     bbox_annot_list = json.load(f)
 
-def get_2d_bbox (cuboid_image_id, height, width): #supports images with 1 bbox for now
-    for i, entry in enumerate(bbox_annot_list): #search with image_id
-        # image_id = re.split('\ | /| ' ,file_name_mod)[-1]
-        bb_image_id = entry['fileName'].split('/')[-1]
-        bb_image_id = bb_image_id.split('\\')[-1]
-        bb_image_id = bb_image_id.split('.')[-2]
-        #print(bb_image_id)
-        if (bb_image_id == cuboid_image_id):
-            bbox = bbox_annot_list[i]['squares']
-            # bbox_scales = bbox_annot_list[i]['scale']
-            # print('Found at index {}'.format(i))
-            # selected_bbox = bbox[bbox_idx]
-            bbox_abs = get_bbox_abs(bbox, height, width) #ToDo: extract annotation according to box mode
-            bbox_xywh = get_bbox_xywh(bbox_abs) 
-            return bbox_xywh
-    print('Image_id not found!')
-    raise IndexError
+# def get_2d_bbox (cuboid_image_id, height, width): #supports images with 1 bbox for now
+#     for i, entry in enumerate(bbox_annot_list): #search with image_id
+#         # image_id = re.split('\ | /| ' ,file_name_mod)[-1]
+#         bb_image_id = entry['fileName'].split('/')[-1]
+#         bb_image_id = bb_image_id.split('\\')[-1]
+#         bb_image_id = bb_image_id.split('.')[-2]
+#         #print(bb_image_id)
+#         if (bb_image_id == cuboid_image_id):
+#             bbox = bbox_annot_list[i]['squares']
+#             # bbox_scales = bbox_annot_list[i]['scale']
+#             # print('Found at index {}'.format(i))
+#             # selected_bbox = bbox[bbox_idx]
+#             bbox_abs = get_bbox_abs(bbox, height, width) #ToDo: extract annotation according to box mode
+#             bbox_xywh = get_bbox_xywh(bbox_abs) 
+#             return bbox_xywh
+#     print('Image_id not found!')
+#     raise IndexError
 
 
 def get_bbox_abs(bbox, height, width):
     '''
-    converts coordinates of bbox to absolute pixel positions
+    converts coordinates of a single bbox to absolute pixel positions
     '''
     #bbox_abs = [] #all converted instances
-    for instance in bbox: #loop over each bbox instance --> [[[x1,y1], [x2,y2],...]]
-        bbox_coors = [] #all converted box coordinates
-        for coors in instance: #convert each x and y coordinate
-            bbox_coor_abs = [] #single converted x,y coordinates
-            coor_abs_x = coors[0]*width
-            bbox_coor_abs.append(coor_abs_x)
-            coor_abs_y = coors[1]*height
-            bbox_coor_abs.append(coor_abs_y)
-            bbox_coors.append(bbox_coor_abs)
+    # for instance in bbox: #loop over each bbox instance --> [[[x1,y1], [x2,y2],...]]
+    bbox_abs = [] #all converted box coordinates
+    for coors in bbox: #convert each x and y coordinate
+        bbox_coors = [] #single converted x,y coordinates
+        coor_abs_x = coors[0]*width
+        bbox_coors.append(coor_abs_x)
+        coor_abs_y = coors[1]*height
+        bbox_coors.append(coor_abs_y)
+        bbox_abs.append(bbox_coors)
         # bbox_abs.append(bbox_coors)
     # print(bbox_abs)
-    return bbox_coors
+    return bbox_abs
  
 
 def get_bbox_xywh (bbox_abs): #(x,y) is that of the top-left corner
     '''
-    returns a single list containing the xywh bbox convention
+    returns a single list containing the xywh bbox conversion
     '''
     # bbox_xywh = [] #all converted box coordinates
     # for instance in bbox_abs: #loop over each bbox instance --> [[[x1,y1], [x2,y2],...]]
@@ -91,10 +90,10 @@ def get_bbox_xywh (bbox_abs): #(x,y) is that of the top-left corner
 
 if __name__ == '__main__':
     cuboid_image_id = '000004'
-    img_dir = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid/Images/internet/ballot_box/'+cuboid_image_id+'.jpg'
+    img_dir = '/home/porthos/masters_thesis/datasets/partial_dataset/state_partial.json'
     height, width = cv2.imread(img_dir).shape[:2]
-    bbox = get_2d_bbox(cuboid_image_id, height, width)
-    print('The bbox is: {}'.format(bbox))
+    # bbox = get_2d_bbox(cuboid_image_id, height, width)
+    # print('The bbox is: {}'.format(bbox))
     
     # draw_bbox(img_dir, bbox)
 
