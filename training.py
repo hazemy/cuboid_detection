@@ -19,9 +19,11 @@ import os
 # import random, cv2
 
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
-# from detectron2.data import build_detection_test_loader
+from detectron2.data import build_detection_test_loader
 
-# from MyTrainer import MyTrainer
+from my_loss_eval_hook import LossEvalHook
+from detectron2.data import DatasetMapper
+
 
 #training
 def do_training(train):
@@ -34,16 +36,16 @@ def do_training(train):
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")  # Let training initialize from model zoo
     cfg.SOLVER.IMS_PER_BATCH = 2
     cfg.SOLVER.BASE_LR = 0.00025  # pick a good LR
-    cfg.SOLVER.MAX_ITER = 3000    # 300 iterations seems good enough for this toy dataset; you may need to train longer for a practical dataset
+    cfg.SOLVER.MAX_ITER = 5000    # 300 iterations seems good enough for this toy dataset; you may need to train longer for a practical dataset
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512 #128   # number of ROIs to sample for training Fast RCNN head. faster, and good enough for this toy dataset (default: 512)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (cuboid)
-    cfg.DATALOADER.FILTER_EMPTY_ANNOTATIONS = False #False -> images without annotation are Not removed during training
+    cfg.DATALOADER.FILTER_EMPTY_ANNOTATIONS = True #False -> images without annotation are Not removed during training
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     # trainer = DefaultTrainer(cfg)  
     my_trainer = MyTrainer(cfg)
     # evaluator = COCOEvaluator("cuboid_dataset_val", cfg, True, output_dir="./output/")
     # trainer.test(cfg=cfg, model=trainer.model, evaluators=[evaluator])
-
+    
     if train:
         # trainer.resume_or_load(resume=False)
         # trainer.train() 
@@ -67,6 +69,18 @@ class MyTrainer(DefaultTrainer):
             output_folder = os.path.join(cfg.OUTPUT_DIR, "inference")
         return COCOEvaluator(dataset_name, cfg, True, output_folder)
     
+    def build_hooks(self):
+        hooks = super().build_hooks()
+        hooks.insert(-1,LossEvalHook(
+            100, # cfg.TEST.EVAL_PERIOD, ######
+            self.model,
+            build_detection_test_loader(
+                self.cfg,
+                self.cfg.DATASETS.TEST[0],
+                DatasetMapper(self.cfg,True)
+            )
+        ))
+        return hooks    
     
     
 # cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
