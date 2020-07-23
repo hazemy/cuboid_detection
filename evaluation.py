@@ -18,7 +18,7 @@ from training import do_training
 
 
 
-#inference & evaluation
+#evaluation
 def do_evaluation(dataset, trainer, cfg):
     # cfg = get_cfg()
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml"))
