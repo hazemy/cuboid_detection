@@ -6,7 +6,8 @@ Created on Wed Jul 22 21:43:42 2020
 @author: porthos
 """
 
-import json, os
+import json, os, copy
+import collections
 
 
 def merge_annot_files(annot_files_list):
@@ -24,8 +25,25 @@ def merge_annot_files(annot_files_list):
     #     json.dump(annot_file_all, write_file, indent=4, sort_keys=True) 
     return annot_files_merged
 
-def check_dublicates(annot_file):
-    pass
+def check_dublicates(annot_files_merged):
+    ids = []
+    for entry in annot_files_merged:
+        image_id = entry['fileName'].split('/')[-1] #annot_id = image id in annotation file
+        image_id = image_id.split('\\')[-1]
+        image_id = image_id.split('.')[-2] #use last section of image directory as image id   
+        ids.append(image_id)
+    seen = []
+    duplicates = []
+    duplicates_idx = []
+    for idx, i in enumerate(ids):
+        if i not in seen:
+            seen.append(i)
+        else:
+            print('Duplicate found')
+            duplicates.append(i)
+            duplicates_idx.append(idx)
+    return (seen, duplicates)
+    
 
 def check_missing(annot_files_merged, images_dir):
     # img_path = os.path.join(images_dir, 'images') #construct path to images folder. * used to force accepting lists
@@ -52,7 +70,6 @@ def check_missing(annot_files_merged, images_dir):
             
 
 
-
 if __name__ =='__main__':
     annot_files_dir_list = []
     annot_file_dir_1 = '/home/porthos/masters_thesis/datasets/full_dataset/state_hazem.json'
@@ -64,5 +81,5 @@ if __name__ =='__main__':
     
     # annot_file_all = '/home/porthos/masters_thesis/datasets/full_dataset/state_all.json'
     images_dir = '/home/porthos/masters_thesis/datasets/full_dataset/images'
-    missing_list = check_missing(annot_files_merged, images_dir)
+    seen, duplicates = check_dublicates(annot_files_merged)
     
