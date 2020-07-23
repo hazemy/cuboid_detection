@@ -9,7 +9,7 @@ Created on Thu Jul  9 15:43:01 2020
 
 from sklearn.model_selection import train_test_split
 # from cuboid_annot2detectron_format import cuboid_annot2detectron_format
-from json2detectron_format import convert2detectron_format
+from format_converter import convert2detectron_format
 
 
 def split_dataset(dataset_list, train_ratio, val_ratio):

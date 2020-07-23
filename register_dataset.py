@@ -9,7 +9,7 @@ Created on Sun Jul  5 04:22:26 2020
 from detectron2.data import DatasetCatalog, MetadataCatalog
 # from mat2cuboid_annot import mat2cuboid_annot
 # from cuboid_annot2detectron_format import cuboid_annot2detectron_format
-from json2detectron_format import convert2detectron_format
+from format_converter import convert2detectron_format
 from dataset_splitter import split_dataset
 from annot_processor import check_missing, merge_annot_files
 # import os
@@ -31,8 +31,8 @@ annot_files_merged = merge_annot_files(annot_files_dir_list)
 # annot_file_all = '/home/porthos/masters_thesis/datasets/full_dataset/state_all.json'
 images_dir = '/home/porthos/masters_thesis/datasets/full_dataset/images'
 missing_list = check_missing(annot_files_merged, images_dir)
-if len(missing_list) > 0:
-    warnings.warn('Dataset Incomplete!')
+# if len(missing_list) > 0:
+#     warnings.warn('Dataset Incomplete!')
 
 dataset_list = convert2detectron_format(annot_files_merged, images_dir)
 train_dataset, val_dataset, test_dataset = split_dataset(dataset_list, 0.6, 0.2)

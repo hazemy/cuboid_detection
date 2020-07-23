@@ -8,12 +8,11 @@ Created on Fri Jul 10 01:38:41 2020
 
 
 from detectron2.engine import DefaultPredictor
-from detectron2.config import get_cfg
 from detectron2 import model_zoo
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import DatasetCatalog, MetadataCatalog
-from detectron2.checkpoint import DetectionCheckpointer
-import random, cv2, os
+# from detectron2.checkpoint import DetectionCheckpointer
+import cv2, os
 from training import do_training
 
 
@@ -32,7 +31,7 @@ def get_predictor(dataset, cfg):
     return predictor
 
 
-#prediction & visualization
+#prediction / inference (& visualization)
 def do_prediction_and_visualization(dataset, cfg):
     # dataset = 'cuboid_dataset_val'
     dataset_dicts = DatasetCatalog.get(dataset)
