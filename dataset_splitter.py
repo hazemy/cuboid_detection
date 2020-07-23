@@ -6,12 +6,10 @@ Created on Thu Jul  9 15:43:01 2020
 @author: porthos
 """
 
-import numpy as np
-import random
+
 from sklearn.model_selection import train_test_split
-from sklearn.utils import shuffle
 # from cuboid_annot2detectron_format import cuboid_annot2detectron_format
-from json2detectron_format import json2detectron_format
+from json2detectron_format import convert2detectron_format
 
 
 def split_dataset(dataset_list, train_ratio, val_ratio):
@@ -68,9 +66,9 @@ def split_pos_neg(dataset_list):
     
 if __name__ == '__main__':
     # dataset_list = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid'
-    annot_file = '/home/porthos/masters_thesis/datasets/partial_dataset/state_partial.json'   
+    annot_file = '/home/porthos/masters_thesis/datasets/partial_dataset/state_all.json'   
     # dataset_list = cuboid_annot2detectron_format(dataset_dir)
-    dataset_list = json2detectron_format(annot_file)
+    dataset_list = convert2detectron_format(annot_file)
     # pos_dataset, neg_dataset = split_pos_neg(dataset_list)
     train_dataset, val_dataset, test_dataset = split_dataset(dataset_list, 0.6, 0.2)    
     
