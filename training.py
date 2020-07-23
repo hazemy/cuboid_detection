@@ -36,15 +36,13 @@ def do_training(train):
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")  # Let training initialize from model zoo
     cfg.SOLVER.IMS_PER_BATCH = 2
     cfg.SOLVER.BASE_LR = 0.00025  # pick a good LR
-    cfg.SOLVER.MAX_ITER = 5000    # 300 iterations seems good enough for this toy dataset; you may need to train longer for a practical dataset
+    cfg.SOLVER.MAX_ITER = 30    # 300 iterations seems good enough for this toy dataset; you may need to train longer for a practical dataset
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512 #128   # number of ROIs to sample for training Fast RCNN head. faster, and good enough for this toy dataset (default: 512)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (cuboid)
     cfg.DATALOADER.FILTER_EMPTY_ANNOTATIONS = True #False -> images without annotation are Not removed during training
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     # trainer = DefaultTrainer(cfg)  
     my_trainer = MyTrainer(cfg)
-    # evaluator = COCOEvaluator("cuboid_dataset_val", cfg, True, output_dir="./output/")
-    # trainer.test(cfg=cfg, model=trainer.model, evaluators=[evaluator])
     
     if train:
         # trainer.resume_or_load(resume=False)
@@ -54,8 +52,6 @@ def do_training(train):
     else:
         # trainer.resume_or_load(resume=True)
         my_trainer.resume_or_load(resume=True)
-    # data_loader = build_detection_test_loader(cfg, "cuboid_dataset_val")
-    # print(inference_on_dataset(trainer.model, data_loader, evaluator))
     return my_trainer, cfg
 
 
@@ -72,7 +68,7 @@ class MyTrainer(DefaultTrainer):
     def build_hooks(self):
         hooks = super().build_hooks()
         hooks.insert(-1,LossEvalHook(
-            100, # cfg.TEST.EVAL_PERIOD, ######
+            self.cfg.TEST.EVAL_PERIOD,
             self.model,
             build_detection_test_loader(
                 self.cfg,
