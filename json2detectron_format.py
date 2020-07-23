@@ -14,18 +14,20 @@ import cv2
 import json
 import numpy as np
 from detectron2.structures import BoxMode
+from annot_processor import merge_annot_files
 
 
-def json2detectron_format(annot_file):
+def convert2detectron_format(annot_list, images_dir):
     '''
-    input: annotation file containing all images
+    inputs: annotations list to be converted
+            path to 'images' folder in the dataset - used for retreiving fileName
     ouput: standard detectron 2 dataset format (json_like)
     It is required that all images are in an 'images' folder in the same 
     directory as the annotation file
     
     '''    
-    with open(annot_file) as f:
-        annot_list = json.load(f)
+    # with open(annot_file) as f:
+    #     annot_list = json.load(f)
         
     dataset_list = []
     for annot in annot_list: #per image loop
@@ -38,8 +40,10 @@ def json2detectron_format(annot_file):
         image_id = image_id.split('.')[-2] #use last section of image directory as image id
         record['image_id'] = image_id
         
-        images_dir = annot_file.split('/')[:-1]
-        img_path = os.path.join('/', *images_dir, 'images', image_id + '.jpg') #construct path to images folder. * used to force accepting lists
+        # images_dir = annot_file.split('/')[:-1]
+        # img_path = os.path.join('/', *images_dir, 'images', image_id + '.jpg') #construct path to images folder. * used to force accepting lists
+        # images_dir = images_dir.split('/')
+        img_path = os.path.join(images_dir, image_id + '.jpg') #construct path to images folder. * used to force accepting lists
         record['file_name'] = img_path
         
         height, width = cv2.imread(img_path).shape[:2]
@@ -91,9 +95,17 @@ def json2detectron_format(annot_file):
     
 
 if __name__ == '__main__':
-    annot_file = '/home/porthos/masters_thesis/datasets/partial_dataset/state_partial.json'
+    # annot_file = '/home/porthos/masters_thesis/datasets/partial_dataset/state_partial.json'
     # cuboid_annot = mat2cuboid_annot(os.path.join(dataset_dir, 'Annotations.mat')) 
-    dataset_list = json2detectron_format(annot_file)
+    annot_files_dir_list = []
+    annot_file_dir_1 = '/home/porthos/masters_thesis/datasets/full_dataset/state_hazem.json'
+    annot_file_dir_2 = '/home/porthos/masters_thesis/datasets/full_dataset/state_mojtaba.json'   
+    annot_file_dir_3= '/home/porthos/masters_thesis/datasets/full_dataset/state_frederick.json'   
+    annot_file_dir_4 = '/home/porthos/masters_thesis/datasets/full_dataset/state_ammar.json'   
+    annot_files_dir_list = [annot_file_dir_1, annot_file_dir_2, annot_file_dir_3, annot_file_dir_4]
+    annot_files_merged = merge_annot_files(annot_files_dir_list)
+    images_dir = '/home/porthos/masters_thesis/datasets/full_dataset/images'
+    dataset_list = convert2detectron_format(annot_files_merged, images_dir)
     
     
     
