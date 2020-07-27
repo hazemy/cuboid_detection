@@ -42,8 +42,14 @@ def check_dublicates(annot_files_merged):
             print('Duplicate found')
             duplicates.append(i)
             duplicates_idx.append(idx)
-    return (seen, duplicates)
-    
+    return (seen, duplicates, duplicates_idx)
+
+def filter_duplicates(annot_files_merged, duplicates_idx):
+    annot_file_filtered = annot_files_merged[:]
+    for idx, _ in enumerate(annot_file_filtered):
+        if idx in duplicates_idx:
+            annot_file_filtered.remove(annot_file_filtered[idx])
+    return annot_file_filtered 
 
 def check_missing(annot_files_merged, images_dir):
     # img_path = os.path.join(images_dir, 'images') #construct path to images folder. * used to force accepting lists
@@ -67,7 +73,22 @@ def check_missing(annot_files_merged, images_dir):
             # print('Total of {} images were Not found'.format(counter))
             missing.append(image_id)
     return missing
-            
+
+def amend_dir(annot_file_filtered):
+    '''
+    Modify annotations' directory to fit annotation tool path
+    '''
+    new_dir = 'C:/Users/Hazem/Desktop/image-annotation-tool-master/image-annotation-tool-master'
+    annot_file_amended = annot_file_filtered[:]
+    for annot in annot_file_amended:
+        annot_id = annot['fileName'].split('/')[-1] #annot_id = image id in annotation file
+        # annot_id = annot_id.split('\\')[-1]
+        full_new_dir = os.path.join(new_dir, annot_id)
+        annot['fileName'] = full_new_dir
+    save_dir = '/home/porthos/masters_thesis'
+    with open(os.path.join(save_dir, 'state_all.json'), 'w') as write_file:
+        json.dump(annot_file_amended, write_file, indent=4, sort_keys=True) 
+    return annot_file_amended
 
 
 if __name__ =='__main__':
@@ -79,7 +100,10 @@ if __name__ =='__main__':
     annot_files_dir_list = [annot_file_dir_1, annot_file_dir_2, annot_file_dir_3, annot_file_dir_4]
     annot_files_merged = merge_annot_files(annot_files_dir_list)
     
-    # annot_file_all = '/home/porthos/masters_thesis/datasets/full_dataset/state_all.json'
+    # # annot_file_all = '/home/porthos/masters_thesis/datasets/full_dataset/state_all.json'
     images_dir = '/home/porthos/masters_thesis/datasets/full_dataset/images'
-    seen, duplicates = check_dublicates(annot_files_merged)
+    seen, duplicates, duplicates_idx = check_dublicates(annot_files_merged)
+    annot_file_filtered = filter_duplicates(annot_files_merged, duplicates_idx)
+    missing = check_missing(annot_files_merged, images_dir)
+    annot_file_amended = amend_dir(annot_file_filtered)
     
