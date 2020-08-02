@@ -31,13 +31,13 @@ def do_training(train):
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml"))
     cfg.DATASETS.TRAIN = ("cuboid_dataset_train",)
     cfg.DATASETS.TEST = ("cuboid_dataset_val",) #used to obtain validation loss during training - do Not remove
-    cfg.TEST.EVAL_PERIOD = 100 #number of iterations at which evaluation is run (to obtain validation loss) - It calls the evaluator, if specified
+    cfg.TEST.EVAL_PERIOD = 1000 #number of iterations at which evaluation is run (to obtain validation loss) - It calls the evaluator, if specified
     cfg.DATALOADER.NUM_WORKERS = 2 #number of dataloading threads   
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")  # Let training initialize from model zoo
     cfg.SOLVER.IMS_PER_BATCH = 2
-    cfg.SOLVER.BASE_LR = 0.00025  # pick a good LR
-    cfg.SOLVER.MAX_ITER = 30    # 300 iterations seems good enough for this toy dataset; you may need to train longer for a practical dataset
-    cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512 #128   # number of ROIs to sample for training Fast RCNN head. faster, and good enough for this toy dataset (default: 512)
+    cfg.SOLVER.BASE_LR = 0.0001 #0.00025 
+    cfg.SOLVER.MAX_ITER = 10000  #3000  #300 iterations sufficient for mini dataset
+    cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512 #128   # number of ROIs to sample for training Fast RCNN head. sufficient for mini dataset (default: 512)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (cuboid)
     cfg.DATALOADER.FILTER_EMPTY_ANNOTATIONS = True #False -> images without annotation are Not removed during training
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
