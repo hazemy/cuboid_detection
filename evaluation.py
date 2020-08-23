@@ -37,6 +37,6 @@ def do_evaluation(dataset, trainer, cfg):
 
 if __name__=='__main__':
     trainer, cfg = do_training(train=False)
-    dataset = "cuboid_dataset_val"
+    dataset = "cuboid_dataset_test"
     do_evaluation(dataset, trainer, cfg)
 

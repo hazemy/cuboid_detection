@@ -25,7 +25,7 @@ def get_predictor(dataset, cfg):
     # checkpoint_path = os.path.join(cfg.OUTPUT_DIR, "last_checkpoint")
     # checkpoint_path = os.path.join(cfg.OUTPUT_DIR, "last_checkpoint")
     # checkpointer_data_dict = DetectionCheckpointer(model_path).load(checkpoint_path)
-    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7   # set a custom testing threshold for this model
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7 #custom testing threshold for model
     cfg.DATASETS.TEST = dataset
     predictor = DefaultPredictor(cfg)
     return predictor
@@ -74,7 +74,7 @@ def do_prediction_and_visualization(dataset, cfg):
    
 if __name__=='__main__':
     _, cfg = do_training(train=False)
-    dataset = "cuboid_dataset_val"
+    dataset = "cuboid_dataset_test"
     do_prediction_and_visualization(dataset, cfg)
 
 
