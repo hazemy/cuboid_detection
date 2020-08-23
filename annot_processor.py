@@ -6,8 +6,7 @@ Created on Wed Jul 22 21:43:42 2020
 @author: porthos
 """
 
-import json, os, copy
-import collections
+import json, os
 
 
 def merge_annot_files(annot_files_list):
@@ -48,9 +47,9 @@ def get_unique(annot_files_merged):
     unique = []
     for index in unique_index:
         unique.append(annot_files_merged[index])
-    save_dir = '/home/porthos/Desktop'
-    with open(os.path.join(save_dir, 'state_filtered.json'), 'w') as write_file:
-        json.dump(unique, write_file, indent=4, sort_keys=True)     
+    # save_dir = '/home/porthos/Desktop'
+    # with open(os.path.join(save_dir, 'state_filtered.json'), 'w') as write_file:
+    #     json.dump(unique, write_file, indent=0, sort_keys=True)     
     return (unique, duplicates_ids, duplicates_index)
     
 def check_missing(annot_files_merged, images_dir):
@@ -80,16 +79,18 @@ def amend_dir(annot_file_filtered):
     '''
     Modify annotations' directory to fit annotation tool path
     '''
-    new_dir = 'C:/Users/Hazem/Desktop/image-annotation-tool-master/image-annotation-tool-master'
+    new_dir = 'C:/Users/Hazem/Desktop/image-annotation-tool-master/image-annotation-tool-master/images\\'
     annot_file_amended = annot_file_filtered[:]
     for annot in annot_file_amended:
         annot_id = annot['fileName'].split('/')[-1] #annot_id = image id in annotation file
-        # annot_id = annot_id.split('\\')[-1]
-        full_new_dir = os.path.join(new_dir, annot_id)
+        annot_id = annot_id.split('\\')[-1]
+        print(annot_id)
+        # full_new_dir = os.path.join(new_dir, annot_id)
+        full_new_dir = new_dir + annot_id
         annot['fileName'] = full_new_dir
-    save_dir = '/home/porthos/masters_thesis'
+    save_dir = '/home/porthos/Desktop'
     with open(os.path.join(save_dir, 'state_all_final.json'), 'w') as write_file:
-        json.dump(annot_file_amended, write_file, indent=4, sort_keys=True) 
+        json.dump(annot_file_amended, fp=write_file, indent=5) 
     return annot_file_amended
 
 
@@ -100,6 +101,7 @@ if __name__ =='__main__':
     # annot_file_dir_3 = '/home/porthos/masters_thesis/datasets/full_dataset/state_frederick.json'   
     # annot_file_dir_4 = '/home/porthos/masters_thesis/datasets/full_dataset/state_ammar.json'   
     annot_file_dir = '/home/porthos/masters_thesis/datasets/full_dataset/state_all_revised.json'
+    # annot_file_dir = '/home/porthos/Desktop/state.json'
     # annot_files_dir_list = [annot_file_dir_1, annot_file_dir_2, annot_file_dir_3, annot_file_dir_4]
     annot_files_dir_list = [annot_file_dir]
     annot_files_merged = merge_annot_files(annot_files_dir_list)
@@ -107,6 +109,6 @@ if __name__ =='__main__':
     images_dir = '/home/porthos/masters_thesis/datasets/full_dataset/images'
     unique, duplicates_ids, duplicates_index = get_unique(annot_files_merged)
     missing = check_missing(unique, images_dir)
-    # annot_file_amended = amend_dir(annot_file_filtered)
+    annot_file_amended = amend_dir(unique)
 
     
