@@ -10,6 +10,7 @@ Created on Thu Jul  9 15:43:01 2020
 from sklearn.model_selection import train_test_split
 # from cuboid_annot2detectron_format import cuboid_annot2detectron_format
 from format_converter import convert2detectron_format
+from annot_processor import merge_annot_files
 
 
 def split_dataset(dataset_list, train_ratio, val_ratio):
@@ -38,17 +39,20 @@ def split_dataset(dataset_list, train_ratio, val_ratio):
     pos_train_val_dataset, pos_test_dataset = train_test_split(pos_dataset, train_size=pos_train_val_size, shuffle=True, random_state=42)
     pos_train_dataset, pos_val_dataset = train_test_split(pos_train_val_dataset, train_size=pos_train_size, shuffle=True, random_state=42)
     
-    neg_train_val_size = train_val_size - pos_train_val_size
-    neg_train_size = train_size - pos_train_size
-    neg_train_val_dataset, neg_test_dataset = train_test_split(neg_dataset, train_size=neg_train_val_size, shuffle=True, random_state=42)
-    neg_train_dataset, neg_val_dataset = train_test_split(neg_train_val_dataset, train_size=neg_train_size, shuffle=True, random_state=42)
-    
-    train_dataset = pos_train_dataset + neg_train_dataset
-    val_dataset = pos_val_dataset + neg_val_dataset
-    test_dataset = pos_test_dataset + neg_test_dataset
-    # train_size = t_size #workaround for splitting into 3 sets using sklearn fn
-    # train_dataset, val_dataset = train_test_split(train_val_dataset, train_size=train_size, shuffle=True, random_state=42)
-    
+    if len(neg_dataset) > 0:
+        neg_train_val_size = train_val_size - pos_train_val_size
+        neg_train_size = train_size - pos_train_size
+        neg_train_val_dataset, neg_test_dataset = train_test_split(neg_dataset, train_size=neg_train_val_size, shuffle=True, random_state=42)
+        neg_train_dataset, neg_val_dataset = train_test_split(neg_train_val_dataset, train_size=neg_train_size, shuffle=True, random_state=42)
+        
+        train_dataset = pos_train_dataset + neg_train_dataset
+        val_dataset = pos_val_dataset + neg_val_dataset
+        test_dataset = pos_test_dataset + neg_test_dataset
+    else:
+        train_dataset = pos_train_dataset
+        val_dataset = pos_val_dataset
+        test_dataset = pos_test_dataset
+   
     return (train_dataset, val_dataset, test_dataset)
     
 
@@ -65,11 +69,11 @@ def split_pos_neg(dataset_list):
 
     
 if __name__ == '__main__':
-    # dataset_list = '/home/porthos/masters_thesis/datasets/data_release/data_release/cuboid'
-    annot_file = '/home/porthos/masters_thesis/datasets/partial_dataset/state_all.json'   
-    # dataset_list = cuboid_annot2detectron_format(dataset_dir)
-    dataset_list = convert2detectron_format(annot_file)
-    # pos_dataset, neg_dataset = split_pos_neg(dataset_list)
+    annot_file_dir = '/home/porthos/masters_thesis/datasets/mini_dataset/mini_dataset_state.json'
+    annot_files_dir_list = [annot_file_dir]
+    annot_files_merged = merge_annot_files(annot_files_dir_list)
+    images_dir = '/home/porthos/masters_thesis/datasets/mini_dataset/images'
+    dataset_list = convert2detectron_format(annot_files_merged, images_dir)
     train_dataset, val_dataset, test_dataset = split_dataset(dataset_list, 0.6, 0.2)    
     
     
