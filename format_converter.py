@@ -8,7 +8,7 @@ Created on Sat Jul  4 17:51:02 2020
 
 
 # from mat2cuboid_annot import mat2cuboid_annot
-from get_2d_bbox import get_bbox_abs, get_bbox_xywh
+# from get_2d_bbox import get_bbox_abs, get_bbox_xywh
 import os
 import cv2
 import json
@@ -31,8 +31,7 @@ def convert2detectron_format(annot_list, images_dir):
         
     dataset_list = []
     for annot in annot_list: #per image loop
-        record = {}
-        
+        record = {}       
         entry = annot
         
         image_id = entry['fileName'].split('/')[-1]
@@ -51,38 +50,29 @@ def convert2detectron_format(annot_list, images_dir):
         record['width'] = width
 
         annotations = []
-        # bbox_idx = 0 #to be used for retrieving multiple instances
-        # for j in range(len(entry['squares'])): #per object instance loop
-        for bbox in entry['squares']: #per object instance loop
+        for i in range(len(entry['squares'])): #per object instance loop
             instance = {}
-            keypoints = []
-            # vertices = entry['object'][j]['position'] #x,y coordinates of vertices
-            # v_list = np.ones(8) #visibility of vertices - entry needed by detectron keypoints format
-            # keypoints = [val for pair in zip(vertices[0], vertices[1]) for val in pair]  #interleaves the x,y coordinates in one list
-             
-            #ToDo: interleave coordinate pair with visibility value
-            # keypoints = np.zeros(len(pairs)+len(ones)) #x,y coor and v for each vertex                                    
-            # for k in range(len(pairs)):
-            #     keypoints = np.zeros(24) #x,y coor and v for each vertex
-            #     keypoints.insert(k+2, v_list[k])
-    
-            # instance['keypoints'] = keypoints
-            
+            bbox = entry['squares'][i]           
             if bbox: #non-empty annotations
                 instance['category_id'] = 0 #foreground (cuboid)
             else:
                 instance['category_id'] = 1 #background 
-                                             #ToDo: leave category empty for background?   
-            
+                                             #ToDo: leave category empty for background?              
             try:
-                bbox_abs = get_bbox_abs(bbox, height, width)
+                bbox_abs = get_abs_coor(bbox, height, width)
                 bbox_xywh = get_bbox_xywh(bbox_abs)
             except IndexError:
                 print('2D BBox could not be retreived!')
                 return
-
-            instance['bbox'] = bbox_xywh #ToDo: why in floating pt. ?
+            
+            cuboid = entry['cubes'][i]
+            if cuboid: #non-empty
+                cuboid_abs = get_abs_coor(cuboid, height, width)
+                cuboid_interleaved = interleave_visibilty(cuboid_abs)
+            
+            instance['bbox'] = bbox_xywh
             instance['bbox_mode'] = BoxMode.XYWH_ABS 
+            instance['keypoints'] = cuboid_interleaved
             annotations.append(instance)
         record['annotations'] = annotations   
         dataset_list.append(record)
@@ -91,20 +81,52 @@ def convert2detectron_format(annot_list, images_dir):
     #     json.dump(dataset_list, write_file, indent=4, sort_keys=True) 
         
     return dataset_list
-    
+
+def get_abs_coor(coordinates, height, width):
+    '''
+    converts coordinates of the corners of a single cuboid or bbox to absolute pixel positions
+    '''
+    coors_abs = [] #all converted box coordinates
+    for coors in coordinates: #convert each x and y coordinate
+        conv_coors = [] #single converted x,y coordinates
+        coor_abs_x = coors[0]*width
+        conv_coors.append(coor_abs_x)
+        coor_abs_y = coors[1]*height
+        conv_coors.append(coor_abs_y)
+        coors_abs.append(conv_coors)
+    return coors_abs
+
+def get_bbox_xywh (bbox_abs): #(x,y) is that of the top-left corner
+    '''
+    returns a single list containing the xywh bbox conversion
+    '''  
+    x_min = bbox_abs[0][0] #hanndle 1 box only
+    x_max = bbox_abs[2][0]
+    y_min = bbox_abs[0][1]
+    y_max = bbox_abs[2][1]  
+    w = x_max - x_min
+    h = y_max - y_min
+    bbox_xywh = [x_min, y_min, w, h] #converted bbox
+    return bbox_xywh
+
+def interleave_visibilty(cuboid):
+    '''
+    Input: a list[list] containing x,y corrdinates of the corners of the cube
+    Output: a list of x,y corner coordinated interleaved with visibilty value (ones)
+    '''
+    v = 2 #visibility
+    cuboid_mod = []
+    for i in range(len(cuboid)):
+        cuboid_mod.extend(cuboid[i])
+        cuboid_mod.append(v)
+    return cuboid_mod     
     
 
 if __name__ == '__main__':
-    # annot_file = '/home/porthos/masters_thesis/datasets/partial_dataset/state_partial.json'
-    # cuboid_annot = mat2cuboid_annot(os.path.join(dataset_dir, 'Annotations.mat')) 
-    annot_files_dir_list = []
-    annot_file_dir_1 = '/home/porthos/masters_thesis/datasets/full_dataset/state_hazem.json'
-    annot_file_dir_2 = '/home/porthos/masters_thesis/datasets/full_dataset/state_mojtaba.json'   
-    annot_file_dir_3= '/home/porthos/masters_thesis/datasets/full_dataset/state_frederick.json'   
-    annot_file_dir_4 = '/home/porthos/masters_thesis/datasets/full_dataset/state_ammar.json'   
-    annot_files_dir_list = [annot_file_dir_1, annot_file_dir_2, annot_file_dir_3, annot_file_dir_4]
+    annot_file_dir = '/home/porthos/masters_thesis/datasets/mini_dataset/mini_dataset_state.json'
+    annot_files_dir_list = [annot_file_dir]
     annot_files_merged = merge_annot_files(annot_files_dir_list)
-    images_dir = '/home/porthos/masters_thesis/datasets/full_dataset/images'
+    images_dir = '/home/porthos/masters_thesis/datasets/mini_dataset/images'
     dataset_list = convert2detectron_format(annot_files_merged, images_dir)
     
     
