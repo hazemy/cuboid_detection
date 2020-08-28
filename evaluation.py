@@ -21,8 +21,10 @@ from training import do_training
 #evaluation
 def do_evaluation(dataset, trainer, cfg):
     # cfg = get_cfg()
-    cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml"))
+    # cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml"))
+    cfg.merge_from_file(model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml"))
     cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
+    cfg.TEST.KEYPOINT_OKS_SIGMAS = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1] #TODO: tune evaluator
     # cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (cuboid)
     # trainer=DefaultTrainer(cfg)
     # trainer.resume_or_load(resume=True)
