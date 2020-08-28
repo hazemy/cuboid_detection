@@ -28,8 +28,8 @@ DatasetCatalog.register('cuboid_dataset' + '_train', lambda: train_dataset)
 MetadataCatalog.get('cuboid_dataset' + '_train').set(thing_classes=['cuboid'])  
 MetadataCatalog.get('cuboid_dataset' + '_train').set(keypoint_names=['FUL', 'FUR', 'FLR', 'FLL', 'BUL', 'BUR', 'BLR', 'BLL'])      
 MetadataCatalog.get('cuboid_dataset' + '_train').set(keypoint_flip_map=[('FUL', 'BUR'), ('FLL', 'BLR'), ('BUL', 'BUL'), ('BLL', 'BLL'), ('FLR', 'FLR'), ('FUR', 'FUR')])    
-MetadataCatalog.get('cuboid_dataset' + '_train').set(keypoint_connection_rules=[('FUL', 'FUR'), ('FUR', 'FLR'), ('FLR', 'FLL'), ('FUL', 'FLL'), ('BUL', 'BUR'), ('BUR', 'BLR'), \
-                                                                                ('BLR', 'BLL'), ('BLL', 'BUL'), ('FUL', 'BUL'), ('FUR', 'BUR'), ('FLR', 'BLR'), ('FLL', 'BLL')])
+MetadataCatalog.get('cuboid_dataset' + '_train').set(keypoint_connection_rules=[('FUL', 'FUR', (255,0,255)), ('FUR', 'FLR', (255,0,255)), ('FLR', 'FLL', (255,0,255)), ('FUL', 'FLL', (255,0,255)), ('BUL', 'BUR',(0,0,255)), ('BUR', 'BLR',(0,0,255)), \
+                                                                                ('BLR', 'BLL', (0,0,255)), ('BLL', 'BUL', (0,0,255)), ('FUL', 'BUL', (0,0,255)), ('FUR', 'BUR', (0,0,255)), ('FLR', 'BLR', (0,0,255)), ('FLL', 'BLL', (0,0,255))])
 cuboid_metadata_train = MetadataCatalog.get("cuboid_dataset_train")
 #TODO: Check id cuboid annotation exists
 
@@ -37,16 +37,16 @@ DatasetCatalog.register('cuboid_dataset' + '_val', lambda: val_dataset)
 MetadataCatalog.get('cuboid_dataset' + '_val').set(thing_classes=['cuboid'])
 MetadataCatalog.get('cuboid_dataset' + '_val').set(keypoint_names=['FUL', 'FUR', 'FLR', 'FLL', 'BUL', 'BUR', 'BLR', 'BLL'])      
 MetadataCatalog.get('cuboid_dataset' + '_val').set(keypoint_flip_map=[('FUL', 'BUR'), ('FLL', 'BLR'), ('BUL', 'BUL'), ('BLL', 'BLL'), ('FLR', 'FLR'), ('FUR', 'FUR')])      
-MetadataCatalog.get('cuboid_dataset' + '_val').set(keypoint_connection_rules=[('FUL', 'FUR'), ('FUR', 'FLR'), ('FLR', 'FLL'), ('FUL', 'FLL'), ('BUL', 'BUR'), ('BUR', 'BLR'), \
-                                                                                ('BLR', 'BLL'), ('BLL', 'BUL'), ('FUL', 'BUL'), ('FUR', 'BUR'), ('FLR', 'BLR'), ('FLL', 'BLL')])
+MetadataCatalog.get('cuboid_dataset' + '_val').set(keypoint_connection_rules=[('FUL', 'FUR', (255,0,255)), ('FUR', 'FLR', (255,0,255)), ('FLR', 'FLL', (255,0,255)), ('FUL', 'FLL', (255,0,255)), ('BUL', 'BUR',(0,0,255)), ('BUR', 'BLR',(0,0,255)), \
+                                                                                ('BLR', 'BLL', (0,0,255)), ('BLL', 'BUL', (0,0,255)), ('FUL', 'BUL', (0,0,255)), ('FUR', 'BUR', (0,0,255)), ('FLR', 'BLR', (0,0,255)), ('FLL', 'BLL', (0,0,255))])
 cuboid_metadata_val = MetadataCatalog.get("cuboid_dataset_val")
   
 DatasetCatalog.register('cuboid_dataset' + '_test', lambda: test_dataset)
 MetadataCatalog.get('cuboid_dataset' + '_test').set(thing_classes=['cuboid']) 
 MetadataCatalog.get('cuboid_dataset' + '_test').set(keypoint_names=['FUL', 'FUR', 'FLR', 'FLL', 'BUL', 'BUR', 'BLR', 'BLL'])      
 MetadataCatalog.get('cuboid_dataset' + '_test').set(keypoint_flip_map=[('FUL', 'BUR'), ('FLL', 'BLR'), ('BUL', 'BUL'), ('BLL', 'BLL'), ('FLR', 'FLR'), ('FUR', 'FUR')])       
-MetadataCatalog.get('cuboid_dataset' + '_test').set(keypoint_connection_rules=[('FUL', 'FUR'), ('FUR', 'FLR'), ('FLR', 'FLL'), ('FUL', 'FLL'), ('BUL', 'BUR'), ('BUR', 'BLR'), \
-                                                                                ('BLR', 'BLL'), ('BLL', 'BUL'), ('FUL', 'BUL'), ('FUR', 'BUR'), ('FLR', 'BLR'), ('FLL', 'BLL')])
+MetadataCatalog.get('cuboid_dataset' + '_test').set(keypoint_connection_rules=[('FUL', 'FUR', (255,0,255)), ('FUR', 'FLR', (255,0,255)), ('FLR', 'FLL', (255,0,255)), ('FUL', 'FLL', (255,0,255)), ('BUL', 'BUR',(0,0,255)), ('BUR', 'BLR',(0,0,255)), \
+                                                                                ('BLR', 'BLL', (0,0,255)), ('BLL', 'BUL', (0,0,255)), ('FUL', 'BUL', (0,0,255)), ('FUR', 'BUR', (0,0,255)), ('FLR', 'BLR', (0,0,255)), ('FLL', 'BLL', (0,0,255))])
 cuboid_metadata_test = MetadataCatalog.get("cuboid_dataset_test") 
     
     
