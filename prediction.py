@@ -19,7 +19,7 @@ from training import do_training
 
 def get_predictor(dataset, cfg):    
     # cfg = get_cfg()
-    model_path = cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml"))
+    model_path = cfg.merge_from_file(model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml"))
     cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
     # cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (cuboid)
     # checkpoint_path = os.path.join(cfg.OUTPUT_DIR, "last_checkpoint")
@@ -60,8 +60,8 @@ def do_prediction_and_visualization(dataset, cfg):
                 classes.append('cuboid')
             scores = output_instances.scores
             labels = ["{} {:.0f}%".format(l, s * 100) for l, s in zip(classes, scores)]
-            gt = v.draw_dataset_dict(d) #display ground truth annotation
-            out = v.overlay_instances(boxes=output_instances.pred_boxes, labels=labels)
+            # gt = v.draw_dataset_dict(d) #display ground truth annotation
+            out = v.overlay_instances(boxes=output_instances.pred_boxes, labels=labels, keypoints=output_instances.pred_keypoints)
             final_img = cv2.resize(out.get_image()[:, :, ::-1], (900,900))
             cv2.imshow('Predication & GT:   ' + d['image_id'] + '.jpg', final_img)
             k = cv2.waitKey(0)
@@ -74,7 +74,7 @@ def do_prediction_and_visualization(dataset, cfg):
    
 if __name__=='__main__':
     _, cfg = do_training(train=False)
-    dataset = "cuboid_dataset_test"
+    dataset = "cuboid_dataset_val"
     do_prediction_and_visualization(dataset, cfg)
 
 
