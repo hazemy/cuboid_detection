@@ -99,11 +99,29 @@ def remove_faulty(annot_file_filtered):
     '''
     Removes faulty annotations (images with extra annotations)
     '''
+    #TODO: double check that these images are actually faulty
+    #order: me (0-3) - anas (4-10) - ammar (11-14) - pablo (15-end & Logistic149 is missing cubes)
     faulty_list = [
                    'Logistic068',\
                    'c_cellblock_cellblock_000203',\
                    'f_firebreak_firebreak_000015',\
-                   's_semidesert_semidesert_000066'
+                   's_semidesert_semidesert_000066',\
+                   'f_floating_dock_floating_dock_000050',\
+                   'f_foothill_foothill_000006',\
+                   'h_hothouse_indoor_hothouse_000006',\
+                   'i_ice_field_ice_field_000013',\
+                   'i_ice_hockey_rink_indoor_ice-hockey_rink_000013',\
+                   'o_opera_outdoor_opera_house_000720',\
+                   't_television_room_television_room_000006',\
+                   'b_bay_bay_000004',\
+                   'l_ledge_ledge_000049',\
+                   'c_country_road_roadway_000018',\
+                   't_t-bar_lift_t-bar_lift_000018',
+                   's_seaside_seaside_000779',\
+                   't_t-bar_lift_t-bar_lift_000132',\
+                   's_shore_shore_000016',\
+                   'w_wetland_wetland_000016',\
+                   'Logistic149'
                   ]
     for annot in annot_file_filtered:
         annot_id = annot['fileName'].split('/')[-1] #annot_id = image id in annotation file
