@@ -119,6 +119,8 @@ def interleave_visibilty(cuboid):
     for i in range(len(cuboid)):
         cuboid_mod.extend(cuboid[i])
         cuboid_mod.append(v)
+    # cuboid_mod.extend(cuboid[7])
+    # cuboid_mod.append(1)
     return cuboid_mod     
     
 
