@@ -20,7 +20,11 @@ def merge_annot_files(annot_files_list):
         with open(annot_file) as f:
             annot_list = json.load(f)
         for annot in annot_list:
-            annot_files_merged.append(annot)
+            image_id = annot['fileName'].split('/')[-1] #annot_id = image id in annotation file
+            image_id = image_id.split('\\')[-1]
+            image_id = image_id.split('.')[-2] #use last section of image directory as image id
+            if 'Logistic' not in image_id: #removes logistic dataset temporarily for testing
+                annot_files_merged.append(annot)
     # with open(os.path.join(save_dir, 'state_all.json'), 'w') as write_file:
     #     json.dump(annot_file_all, write_file, indent=4, sort_keys=True) 
     return annot_files_merged
