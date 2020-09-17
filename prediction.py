@@ -16,15 +16,17 @@ import cv2, os
 from training import do_training
 
 
+from detectron2.config import get_cfg
 
-def get_predictor(dataset, cfg):    
+
+def get_predictor(dataset, cfg):  
     # cfg = get_cfg()
-    model_path = cfg.merge_from_file(model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml"))
-    cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
-    # cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (cuboid)
-    # checkpoint_path = os.path.join(cfg.OUTPUT_DIR, "last_checkpoint")
-    # checkpoint_path = os.path.join(cfg.OUTPUT_DIR, "last_checkpoint")
-    # checkpointer_data_dict = DetectionCheckpointer(model_path).load(checkpoint_path)
+    # model_path = cfg.merge_from_file(model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml"))
+    # model_path = cfg.merge_from_file(model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_X_101_32x8d_FPN_3x.yaml"))
+    model_path = cfg.merge_from_file(model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_R_50_FPN_3x.yaml"))
+    # cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
+    cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_0014999.pth")
+# cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Keypoints/keypoint_rcnn_R_50_FPN_3x.yaml")  # Let training initialize from model zoo
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7 #custom testing threshold for model
     cfg.DATASETS.TEST = dataset
     predictor = DefaultPredictor(cfg)
@@ -33,7 +35,6 @@ def get_predictor(dataset, cfg):
 
 #prediction / inference (& visualization)
 def do_prediction_and_visualization(dataset, cfg):
-    # dataset = 'cuboid_dataset_val'
     dataset_dicts = DatasetCatalog.get(dataset)
     metadata=MetadataCatalog.get(dataset)
     # label=MetadataCatalog.get('cuboid_dataset_val').thing_classes 
@@ -48,13 +49,10 @@ def do_prediction_and_visualization(dataset, cfg):
                            metadata=metadata,
                            scale=1, 
             )
-            # print('Instances are: {}'.format(outputs['instances']))
             # print(outputs['instances'].pred_classes)
-            # output_instances = outputs['instances'].pred_boxes.to('cpu')
             output_instances = outputs['instances'].to('cpu')
             pred = output_instances.pred_classes
             # print(pred.tolist())
-            # print(list(pred.size())[0])
             classes=[] 
             for i in range(len(pred.tolist())):
                 classes.append('cuboid')
@@ -64,18 +62,22 @@ def do_prediction_and_visualization(dataset, cfg):
             out = v.overlay_instances(boxes=output_instances.pred_boxes, labels=labels, keypoints=output_instances.pred_keypoints)
             final_img = cv2.resize(out.get_image()[:, :, ::-1], (900,900))
             cv2.imshow('Predication & GT:   ' + d['image_id'] + '.jpg', final_img)
+            # cv2.imshow('Predication & GT:   ', final_img)
             k = cv2.waitKey(0)
             if k == 27: #esc key for stop
                 cv2.destroyAllWindows()
                 break
             cv2.destroyAllWindows()  
-            # print(output_instances.get_centers())
+                # print(output_instances.get_centers())
         
    
 if __name__=='__main__':
     _, cfg = do_training(train=False)
-    dataset = "cuboid_dataset_val"
+    dataset = "cuboid_dataset_test"
+    # dataset = "mock_dataset"
     do_prediction_and_visualization(dataset, cfg)
+    # do_prediction_and_visualization(dataset)
+
 
 
 

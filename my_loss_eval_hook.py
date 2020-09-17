@@ -8,9 +8,9 @@ Created on Wed Jul 22 14:40:54 2020
 
 
 from detectron2.engine.hooks import HookBase
-from detectron2.evaluation import inference_context
+# from detectron2.evaluation import inference_context
 from detectron2.utils.logger import log_every_n_seconds
-from detectron2.data import DatasetMapper, build_detection_test_loader
+# from detectron2.data import DatasetMapper, build_detection_test_loader
 import detectron2.utils.comm as comm
 import torch
 import time
