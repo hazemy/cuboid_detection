@@ -24,9 +24,9 @@ def get_predictor(dataset, cfg):
     # model_path = cfg.merge_from_file(model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml"))
     # model_path = cfg.merge_from_file(model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_X_101_32x8d_FPN_3x.yaml"))
     model_path = cfg.merge_from_file(model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_R_50_FPN_3x.yaml"))
-    # cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
-    cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_0014999.pth")
-# cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Keypoints/keypoint_rcnn_R_50_FPN_3x.yaml")  # Let training initialize from model zoo
+    # model_path = cfg.merge_from_file(model_zoo.get_config_file("Misc/scratch_mask_rcnn_R_50_FPN_3x_gn.yaml"))
+    cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
+    # cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Keypoints/keypoint_rcnn_R_50_FPN_3x.yaml")  # Let training initialize from model zoo
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7 #custom testing threshold for model
     cfg.DATASETS.TEST = dataset
     predictor = DefaultPredictor(cfg)
@@ -61,7 +61,7 @@ def do_prediction_and_visualization(dataset, cfg):
             # gt = v.draw_dataset_dict(d) #display ground truth annotation
             out = v.overlay_instances(boxes=output_instances.pred_boxes, labels=labels, keypoints=output_instances.pred_keypoints)
             final_img = cv2.resize(out.get_image()[:, :, ::-1], (900,900))
-            cv2.imshow('Predication & GT:   ' + d['image_id'] + '.jpg', final_img)
+            cv2.imshow('Predication:   ' + d['image_id'] + '.jpg', final_img)
             # cv2.imshow('Predication & GT:   ', final_img)
             k = cv2.waitKey(0)
             if k == 27: #esc key for stop
@@ -73,7 +73,7 @@ def do_prediction_and_visualization(dataset, cfg):
    
 if __name__=='__main__':
     _, cfg = do_training(train=False)
-    dataset = "cuboid_dataset_test"
+    dataset = "cuboid_dataset_val"
     # dataset = "mock_dataset"
     do_prediction_and_visualization(dataset, cfg)
     # do_prediction_and_visualization(dataset)
