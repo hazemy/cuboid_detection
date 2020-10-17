@@ -15,13 +15,14 @@ from annot_processor import merge_annot_files, get_unique, remove_faulty, check_
 
 # annot_file_dir = '/home/porthos/masters_thesis/datasets/mini_dataset/mini_dataset_state.json'
 # images_dir = '/home/porthos/masters_thesis/datasets/mini_dataset/images'
-annot_file_dir_1 = '/home/porthos/masters_thesis/datasets/augmented_dataset/annotations_hazem.json'
-annot_file_dir_2 = '/home/porthos/masters_thesis/datasets/augmented_dataset/annotations_ammar.json'
-annot_file_dir_3 = '/home/porthos/masters_thesis/datasets/augmented_dataset/annotations_pablo.json'
-annot_file_dir_4 = '/home/porthos/masters_thesis/datasets/augmented_dataset/annotations_anas.json'
+annot_file_dir_1 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_hazem.json'
+annot_file_dir_2 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_ammar.json'
+annot_file_dir_3 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_pablo.json'
+annot_file_dir_4 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_anas.json'
+annot_file_dir_5 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_leonie.json'
 
-images_dir = '/home/porthos/masters_thesis/datasets/augmented_dataset/images'
-annot_files_dir_list = [annot_file_dir_1, annot_file_dir_2, annot_file_dir_3, annot_file_dir_4]
+images_dir = '/home/porthos/masters_thesis/datasets/final_dataset/images'
+annot_files_dir_list = [annot_file_dir_1, annot_file_dir_2, annot_file_dir_3, annot_file_dir_4, annot_file_dir_5]
 annot_files_merged = merge_annot_files(annot_files_dir_list)
 
 annot_file_filtered, _, _ = get_unique(annot_files_merged)
