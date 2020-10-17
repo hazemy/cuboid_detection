@@ -106,7 +106,6 @@ def remove_faulty(annot_file_filtered):
     #TODO: double check that these images are actually faulty
     #order: me (0-3) - anas (4-10) - ammar (11-14) - pablo (15-end & Logistic149 is missing cubes)
     faulty_list = [
-                   'Logistic068',\
                    'c_cellblock_cellblock_000203',\
                    'f_firebreak_firebreak_000015',\
                    's_semidesert_semidesert_000066',\
@@ -125,14 +124,17 @@ def remove_faulty(annot_file_filtered):
                    't_t-bar_lift_t-bar_lift_000132',\
                    's_shore_shore_000016',\
                    'w_wetland_wetland_000016',\
-                   'Logistic149'
+                   'e_estuary_estuary_000010',\
+                   'm_millpond_millpond_000009',\
+                   's_seaside_seaside_000009',\
+                   'a_apple_orchard_apple_orchard_000004'
                   ]
     for annot in annot_file_filtered:
         annot_id = annot['fileName'].split('/')[-1] #annot_id = image id in annotation file
         annot_id = annot_id.split('\\')[-1]
         annot_id = annot_id.split('.')[-2]
         if annot_id in faulty_list:
-            print('Faulty Image Found: {}'.format(annot_id))
+            # print('Faulty Image Found: {}'.format(annot_id))
             annot['squares'] = []
             annot['cubes'] = []
     return annot_file_filtered
@@ -151,20 +153,18 @@ def check_visibilty(annot_file):
 
 
 if __name__ =='__main__':
-    # annot_files_dir_list = []
-    # annot_file_dir_1 = '/home/porthos/masters_thesis/datasets/full_dataset/state_hazem.json'
-    # annot_file_dir_2 = '/home/porthos/masters_thesis/datasets/full_dataset/state_mojtaba.json'   
-    # annot_file_dir_3 = '/home/porthos/masters_thesis/datasets/full_dataset/state_frederick.json'   
-    # annot_file_dir_4 = '/home/porthos/masters_thesis/datasets/full_dataset/state_ammar.json'   
-    annot_file_dir = '/home/porthos/masters_thesis/datasets/augmented_dataset/annotations_hazem.json'
-    # annot_file_dir = '/home/porthos/Desktop/state.json'
-    # annot_files_dir_list = [annot_file_dir_1, annot_file_dir_2, annot_file_dir_3, annot_file_dir_4]
-    annot_files_dir_list = [annot_file_dir]
+    annot_file_dir_1 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_hazem.json'
+    annot_file_dir_2 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_ammar.json'
+    annot_file_dir_3 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_pablo.json'
+    annot_file_dir_4 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_anas.json'
+    annot_file_dir_5 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_leonie.json'
+    
+    images_dir = '/home/porthos/masters_thesis/datasets/final_dataset/images'
+    annot_files_dir_list = [annot_file_dir_1, annot_file_dir_2, annot_file_dir_3, annot_file_dir_4, annot_file_dir_5]
     annot_files_merged = merge_annot_files(annot_files_dir_list)
     
-    images_dir = '/home/porthos/masters_thesis/datasets/full_dataset/images'
     unique, duplicates_ids, duplicates_index = get_unique(annot_files_merged)
-    # missing = check_missing(unique, images_dir)
+    missing = check_missing(unique, images_dir)
     annot_file_amended = amend_dir(unique)
     annot_file_corrected = remove_faulty(annot_file_amended)
     check_visibilty(annot_file_corrected)
