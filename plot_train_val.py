@@ -36,6 +36,9 @@ plt.plot(
 plt.plot(
     [x['iteration'] for x in experiment_metrics if 'total_val_loss' in x], 
     [x['total_val_loss'] for x in experiment_metrics if 'total_val_loss' in x])
-plt.legend(['total_loss', 'total_val_loss'], loc='upper left')
+plt.legend(['total train loss', 'total val loss'], loc='upper right')
+plt.xlabel('Iterations')
+plt.ylabel('Loss')
+# plt.title('lr: 0.001, batch: 2, anchors: 256')
 plt.show()
 
