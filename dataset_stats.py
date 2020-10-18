@@ -47,10 +47,31 @@ def vis_get_total(total_pos, total_ins, instances_num, total_keypts_vis, total_k
     print('Total num of out keypts is: {}'.format(total_keypts_out))
     print('Max num of instances per image is: {}'.format(max(instances_num)))
     instances_num_np = np.asarray(instances_num)
+    fig_1 = plt.figure()
     n, bins, _ =  plt.hist(instances_num_np, range(1,11,1), align='left', histtype='bar', ec='black', color='#1F77B4')
+    # plt.boxplot(instances_num_np)
     plt.xlabel('Number of instances')
     plt.ylabel('Number of images')
-    plt.title('Instances per image')    
+    plt.title('Instances per image') 
+    fig_1.tight_layout()
+    # plt.show()
+    
+    # fig_2 = plt.figure()
+    labels = ['Visible', 'Hidden', 'Out']
+    data = [total_keypts_vis, total_keypts_hid, total_keypts_out]
+    explode = (0.0, 0.0, 0.0)  # only "explode" the 2nd slice
+    fig2, ax1 = plt.subplots(subplot_kw=dict(aspect="equal"))
+    colors = ['#2CA02C', '#1F77B4', '#D62728']
+    wedges, texts, autotexts = ax1.pie(data, explode=explode, labels=labels, 
+                                       autopct='%1.1f%%', textprops=dict(color="w"), 
+                                       shadow=True, startangle=90, colors=colors)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle. 
+    ax1.set_title('Visibility of Dataset Keypoints')
+    ax1.legend(wedges, labels,
+          title="Visibility",
+          loc="center left",
+          bbox_to_anchor=(1, 0, 0.5, 1))
+    plt.setp(autotexts, size=9, weight="bold")
     plt.show()
 
 
@@ -104,10 +125,10 @@ def get_areas(dataset_list):
                 total_ins += 1
                 if ratio < 0.01:
                     print(entry['file_name']) 
-    return heights_pos, widths_pos, ratio_img_size, areas_imgs_pos
+    return heights_pos, widths_pos, ratio_img_size, areas_imgs_pos, areas, total_ins
 
     
-def vis_get_areas(heights_pos, widths_pos, ratio_img_size, areas_imgs_pos):
+def vis_get_areas(heights_pos, widths_pos, ratio_img_size, areas_imgs_pos, areas, total_ins):
     print('Min image height is: {}'.format(min(heights_pos)))
     print('Min image width is: {}'.format(min(widths_pos)))
     print('Min area for image: {}'.format((dataset_list[areas_imgs_pos.index(min(areas_imgs_pos))])['file_name']))
@@ -116,20 +137,32 @@ def vis_get_areas(heights_pos, widths_pos, ratio_img_size, areas_imgs_pos):
     print('Max area for image: {}'.format((dataset_list[areas_imgs_pos.index(max(areas_imgs_pos))])['file_name']))
     ratio_img_size_np = np.asarray(ratio_img_size)
     percent_img_size = np.multiply(ratio_img_size, 100)
-    n, bins, _ =  plt.hist(np.ceil(percent_img_size), bins=range(1,101,1), align='left', histtype='bar', ec='black')
-    print(n)
-    print(bins)
+    fig_1 = plt.figure()
+    n, bins, _ =  plt.hist(np.ceil(percent_img_size), bins=range(1,101,1), align='left', 
+                           histtype='bar', ec='black')
+    plt.xlabel('Percent of image size')
+    plt.ylabel('Number of instances')
+    plt.title('Hisstogtam of Sizes of instances')
+    fig_1.tight_layout()
     # percent_range = np.asarray(range(0,100,10))
     # left_of_first_bin = percent_range.min() - 5
     # right_of_last_bin = percent_range.max() + 5
     # n, bins, _ = plt.hist(percent_img_size, np.arange(left_of_first_bin, right_of_last_bin, 10))
-    plt.figure()
+    fig_2 = plt.figure()
     n_np = np.asarray(n)
     percent_instances = np.multiply(np.divide(n_np, total_ins), 100)
-    plt.plot(bins[1:], percent_instances, marker='o', color='#1F77B4')
+    plt.plot(bins[1:], percent_instances, marker='.', markersize=7, color='#1F77B4')
     plt.xlabel('Percent of image size')
     plt.ylabel('Percent of instances')
-    plt.title('Size of instances') 
+    plt.title('Sizes of instances')
+    fig_2.tight_layout()
+    
+    fig_3 = plt.figure()
+    n, bins, _ =  plt.hist(areas, bins=10 , log=True, align='left', histtype='bar', ec='black')
+    plt.xlabel('Image area (square pixels)')
+    plt.ylabel('Number of images')
+    plt.title('Histogram of distribution of images areas (log scale)')
+    fig_3.tight_layout()
     plt.show()
 
 
@@ -205,8 +238,8 @@ if __name__ =='__main__':
     dataset_list = convert2detectron_format(annot_file_corrected, images_dir)
     get_mean_pixel(dataset_list)
     
-    heights_pos, widths_pos, ratio_img_size, areas_imgs_pos = get_areas(dataset_list)
-    vis_get_areas(heights_pos, widths_pos, ratio_img_size, areas_imgs_pos)
+    heights_pos, widths_pos, ratio_img_size, areas_imgs_pos, areas, total_ins = get_areas(dataset_list)
+    vis_get_areas(heights_pos, widths_pos, ratio_img_size, areas_imgs_pos, areas, total_ins)
     
     annotator_total_pos, annotator_total_inst = get_annotator_stats(annot_files_dir_list)
     vis_get_annotator_stats(annotator_total_pos, annotator_total_inst)
