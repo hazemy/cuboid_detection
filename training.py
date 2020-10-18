@@ -11,15 +11,15 @@ setup_logger()
 from detectron2 import model_zoo
 from detectron2.config import get_cfg
 from detectron2.engine import DefaultTrainer
-from detectron2.modeling import build_model
+# from detectron2.modeling import build_model
 import os
-import yaml
+# import yaml
 
 from detectron2.evaluation import COCOEvaluator
-from detectron2.data import build_detection_test_loader
+# from detectron2.data import build_detection_test_loader
 
-from my_loss_eval_hook import LossEvalHook
-from detectron2.data import DatasetMapper
+# from my_loss_eval_hook import LossEvalHook
+# from detectron2.data import DatasetMapper
 
 from detectron2.engine import HookBase
 import detectron2.utils.comm as comm
@@ -36,9 +36,9 @@ def do_training(train):
     # cfg.merge_from_file(model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_R_50_FPN_3x.yaml"))
     cfg.merge_from_file(model_zoo.get_config_file("Misc/scratch_mask_rcnn_R_50_FPN_3x_gn.yaml"))
     cfg.DATASETS.TRAIN = ("cuboid_dataset_train",)
-    cfg.DATASETS.TEST = ("cuboid_dataset_val",) #used to obtain validation loss during training - do Not remove
-    cfg.TEST.EVAL_PERIOD = 300 #number of iterations at which evaluation is run (to obtain validation loss) - It calls the evaluator, if specified
-    cfg.SOLVER.CHECKPOINT_PERIOD = 5000
+    cfg.DATASETS.TEST = ("cuboid_dataset_val",) #used by evaluator- do Not remove
+    cfg.TEST.EVAL_PERIOD = 100 #number of iterations at which evaluation is run (Not relevant to validation loss calculation)
+    cfg.SOLVER.CHECKPOINT_PERIOD = 3000
     cfg.DATALOADER.NUM_WORKERS = 2 #number of dataloading threads   
     # cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")  # Let training initialize from model zoo
     # cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml")  # Let training initialize from model zoo
@@ -53,68 +53,61 @@ def do_training(train):
     cfg.TEST.KEYPOINT_OKS_SIGMAS = [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.6]#same reason as for NUM_KEYPOINTS but for the evaluation part
     cfg.SOLVER.IMS_PER_BATCH = 2
     cfg.SOLVER.BASE_LR = 0.001 #0.0001 #0.00025 
-    cfg.SOLVER.MAX_ITER = 12000  #300 iterations sufficient for mini dataset
+    cfg.SOLVER.MAX_ITER = 400  #300 iterations sufficient for mini dataset
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 256 #128 #number of ROIs to sample for training Fast RCNN head. sufficient for mini dataset (default: 512)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (cuboid)
     cfg.DATALOADER.FILTER_EMPTY_ANNOTATIONS = True #False -> images without annotation are Not removed during training
+    cfg.MODEL.PIXEL_MEAN = [124.396, 121.658, 110.113]
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
-    # my_trainer = MyTrainer(cfg)
+    my_trainer = MyTrainer(cfg)
     
-    # if train:
-    #     my_trainer.resume_or_load(resume=False)
-    #     my_trainer.train() 
-    # else:
-    #     my_trainer.resume_or_load(resume=True)
-    # print(cfg.dump())
-    # return my_trainer, cfg
-    
-    trainer = DefaultTrainer(cfg)
-    val_loss = ValidationLoss(cfg)  
-    trainer.register_hooks([val_loss])
+    # trainer = DefaultTrainer(cfg)
+    val_loss = ValidationLoss(cfg) #runs every 20 iterations by default
+    my_trainer.register_hooks([val_loss])
     # swap the order of PeriodicWriter and ValidationLoss
-    trainer._hooks = trainer._hooks[:-2] + trainer._hooks[-2:][::-1]
+    my_trainer._hooks = my_trainer._hooks[:-2] + my_trainer._hooks[-2:][::-1]
     if train:
-        trainer.resume_or_load(resume=False)
-        trainer.train() 
+        my_trainer.resume_or_load(resume=False)
+        my_trainer.train() 
     else:
-        trainer.resume_or_load(resume=True)
+        my_trainer.resume_or_load(resume=True)
         cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
         
     with open("./output/cfg_dump.txt", 'w') as file:
         file.write(cfg.dump())
     # print(cfg.dump())
-    return trainer, cfg
+    return my_trainer, cfg
 
 
-# class MyTrainer(DefaultTrainer):
-#     '''
-#     subclass of DefaultTrainer class
-#     '''
-#     @classmethod
-#     def build_evaluator(cls, cfg, dataset_name, output_folder=None):
-#         if output_folder is None:
-#             output_folder = os.path.join(cfg.OUTPUT_DIR, "inference")
-#         return COCOEvaluator(dataset_name, cfg, True, output_folder)
+class MyTrainer(DefaultTrainer):
+    '''
+    subclass of DefaultTrainer class
+    '''
+    @classmethod
+    def build_evaluator(cls, cfg, dataset_name, output_folder=None):
+        if output_folder is None:
+            output_folder = os.path.join(cfg.OUTPUT_DIR, "inference")
+        return COCOEvaluator(dataset_name, cfg, True, output_folder)
     
-#     def build_hooks(self):
-#         hooks = super().build_hooks()
-#         hooks.insert(-1,LossEvalHook(
-#             self.cfg.TEST.EVAL_PERIOD,
-#             self.model,
-#             build_detection_test_loader(
-#                 self.cfg,
-#                 self.cfg.DATASETS.TEST[0],
-#                 DatasetMapper(self.cfg,True)
-#             )
-#         ))
-#         return hooks 
+    # def build_hooks(self):
+    #     hooks = super().build_hooks()
+    #     hooks.insert(-1,LossEvalHook(
+    #         self.cfg.TEST.EVAL_PERIOD,
+    #         self.model,
+    #         build_detection_test_loader(
+    #             self.cfg,
+    #             self.cfg.DATASETS.TEST[0],
+    #             DatasetMapper(self.cfg,True)
+    #         )
+    #     ))
+    #     return hooks 
     
 
 class ValidationLoss(HookBase):
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg.clone()
-        self.cfg.DATASETS.TRAIN = cfg.DATASETS.TEST
+        # self.cfg.DATASETS.TRAIN = cfg.DATASETS.TEST
         self._loader = iter(build_detection_train_loader(self.cfg))
         
     def after_step(self):
