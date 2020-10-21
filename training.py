@@ -11,6 +11,7 @@ setup_logger(output='./output/log.txt') #save logs
 from detectron2 import model_zoo
 from detectron2.config import get_cfg
 from detectron2.engine import DefaultTrainer
+from detectron2.solver import get_default_optimizer_params
 # from detectron2.modeling import build_model
 import os
 # import yaml
@@ -37,7 +38,7 @@ def do_training(train):
     cfg.merge_from_file(model_zoo.get_config_file("Misc/scratch_mask_rcnn_R_50_FPN_3x_gn.yaml"))
     cfg.DATASETS.TRAIN = ("cuboid_dataset_train",)
     cfg.DATASETS.TEST = ("cuboid_dataset_val",) #used by evaluator- do Not remove
-    cfg.TEST.EVAL_PERIOD = 300 #number of iterations at which evaluation is run (Not relevant to validation loss calculation)
+    cfg.TEST.EVAL_PERIOD = 30 #number of iterations at which evaluation is run (Not relevant to validation loss calculation)
     cfg.SOLVER.CHECKPOINT_PERIOD = 6000
     cfg.DATALOADER.NUM_WORKERS = 2 #number of dataloading threads   
     # cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")  # Let training initialize from model zoo
@@ -58,10 +59,11 @@ def do_training(train):
     cfg.SOLVER.BASE_LR = 0.001 #0.0001 
     cfg.SOLVER.MAX_ITER = 8000
     # cfg.SOLVER.GAMMA = 0.1 #lr decay factor (in multistep LR scheduler)
-    # cfg.SOLVER.STEPS = [4000] #iteration milestones for reducing the lr (by gamma)
+    # cfg.SOLVER.STEPS = [3000] #iteration milestones for reducing the lr (by gamma)
     # cfg.SOLVER.WARMUP_FACTOR = 0.001 #start with a fraction of the learning rate for a number of iterations (warmup)
     # cfg.SOLVER.WARMUP_ITERS = 1000 #warmup helps at initially avoiding learning irrelevant features
     # cfg.SOLVER.NESTEROV = True
+    # cfg.SOLVER.WEIGHT_DECAY = 0.0001
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 256 #128 #number of ROIs to sample for training Fast RCNN head. sufficient for mini dataset (default: 512)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (cuboid)
     cfg.DATALOADER.FILTER_EMPTY_ANNOTATIONS = True #False -> images without annotation are Not removed during training
@@ -91,11 +93,27 @@ class MyTrainer(DefaultTrainer):
     '''
     subclass of DefaultTrainer class
     '''
+        
     @classmethod
-    def build_evaluator(cls, cfg, dataset_name, output_folder=None):
+    def build_evaluator(cls, cfg, dataset_name, output_folder=None): #tasks added explicitly
         if output_folder is None:
             output_folder = os.path.join(cfg.OUTPUT_DIR, "inference")
-        return COCOEvaluator(dataset_name, cfg, True, output_folder)
+        sigmas = cfg.TEST.KEYPOINT_OKS_SIGMAS
+        evaluator = COCOEvaluator(dataset_name=dataset_name, tasks=("bbox","keypoints"), distributed=True, output_dir=output_folder, use_fast_impl=True, kpt_oks_sigmas=sigmas)
+        return evaluator
+    
+    @classmethod
+    def build_optimizer(cls, cfg, model):
+        params = get_default_optimizer_params(
+            model,
+            base_lr=cfg.SOLVER.BASE_LR,
+            weight_decay=cfg.SOLVER.WEIGHT_DECAY,
+            weight_decay_norm=cfg.SOLVER.WEIGHT_DECAY_NORM,
+            bias_lr_factor=cfg.SOLVER.BIAS_LR_FACTOR,
+            weight_decay_bias=cfg.SOLVER.WEIGHT_DECAY_BIAS,
+        )
+        return torch.optim.Adam(params, lr=cfg.SOLVER.BASE_LR, betas=(0.9, 0.999), eps=1e-08, weight_decay=cfg.SOLVER.WEIGHT_DECAY, amsgrad=False)
+
     
     # def build_hooks(self):
     #     hooks = super().build_hooks()
@@ -119,7 +137,7 @@ class MyTrainer(DefaultTrainer):
 class ValidationLoss(HookBase):
     def __init__(self, cfg):
         super().__init__()
-        self.cfg = cfg.clone()
+        self.cfg = cfg.clone() # cfg can be modified by model
         self.cfg.DATASETS.TRAIN = cfg.DATASETS.TEST
         self._loader = iter(build_detection_train_loader(self.cfg))
         
