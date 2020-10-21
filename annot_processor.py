@@ -95,8 +95,8 @@ def amend_dir(annot_file_filtered):
         full_new_dir = new_dir + annot_id + '.jpg'
         annot['fileName'] = full_new_dir
     save_dir = '/home/porthos/Desktop'
-    with open(os.path.join(save_dir, 'state_all_final.json'), 'w') as write_file:
-        json.dump(annot_file_amended, fp=write_file, indent=5) 
+    # with open(os.path.join(save_dir, 'state_all_final.json'), 'w') as write_file:
+    #     json.dump(annot_file_amended, fp=write_file, indent=5) 
     return annot_file_amended
 
 def remove_faulty(annot_file_filtered):
