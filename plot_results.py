@@ -53,8 +53,9 @@ def draw_multi_lr():
     plt.xlabel('Iterations')
     plt.ylabel('Total training loss')
     fig_1.tight_layout()
-    plt.title('Training Loss')
-    # plt.savefig('/home/porthos/masters_thesis/writing/figures/results/train_loss_diff_lr.pdf')
+    # plt.title('Training Loss')
+    plt.grid(b=True, linestyle=':')
+    # plt.savefig('/home/porthos/masters_thesis/writing/figures/results/train_loss_multi_lr.pdf')
     plt.show()
 
 def draw_multi_ap50():
@@ -82,13 +83,43 @@ def draw_multi_ap50():
     plt.xlabel('Iterations')
     # plt.ylabel('Accuracy')
     fig_1.tight_layout()
-    plt.title('Validation AP50')
-    # plt.savefig('/home/porthos/masters_thesis/writing/figures/results/ap50_diff_lr.pdf')
+    plt.grid(b=True, linestyle=':')
+    # plt.title('Validation AP50')
+    # plt.savefig('/home/porthos/masters_thesis/writing/figures/results/ap50_multi_lr.pdf')
     plt.show()
 
 def draw_train_val_best_lr():
     experiment_folder = '/home/porthos/masters_thesis/cuboid_detection/results/final_dataset_results/final'
-    metrics = load_json_arr(experiment_folder + '/20_10_20-6_00[lr0.0001]' + '/metrics.json')
+    metrics_1 = load_json_arr(experiment_folder + '/20_10_20-18_30[lr0.001]' + '/metrics.json')
+    metrics_2 = load_json_arr(experiment_folder + '/20_10_20-6_00[lr0.0001]' + '/metrics.json')
+
+    colors = ['#1F77B4', '#FF7F0E', '#2CA02C', '#D62728', '#8C564B', '#7F7F7F', '#9467BD', '#17BECF'] #blue, orange, green, red, brown, grey, purple, cian
+    fig_1 = plt.figure()
+    plt.plot(
+        [x['iteration'] for x in metrics_1], 
+        [x['total_loss'] for x in metrics_1], color=colors[2])
+    plt.plot(
+        [x['iteration'] for x in metrics_1], 
+        [x['total_val_loss'] for x in metrics_1], color= colors[4])
+    plt.plot(
+        [x['iteration'] for x in metrics_2], 
+        [x['total_loss'] for x in metrics_2], color=colors[1])
+    plt.plot(
+        [x['iteration'] for x in metrics_2], 
+        [x['total_val_loss'] for x in metrics_2], color= colors[7])
+    plt.legend(['training loss (lr: 0.001)', 'validation loss (lr: 0.001)', 'training loss (lr: 0.0001)', 'validation loss (lr: 0.0001)'], 
+               loc='upper right')
+    plt.xlabel('Iterations')
+    plt.ylabel('Total loss')
+    fig_1.tight_layout()
+    # plt.title('Total train-val losses at 0.001 and 0.0001 lr')
+    plt.grid(b=True, linestyle=':')
+    # plt.savefig('/home/porthos/masters_thesis/writing/figures/results/train_val_loss_lr0.001-0.0001.pdf')
+    plt.show()
+    
+def draw_lr_schedule_model():
+    experiment_folder = '/home/porthos/masters_thesis/cuboid_detection/results/final_dataset_results/final'
+    metrics = load_json_arr(experiment_folder + '/21_10_20-11_00[lr1_0.0001-lr2_0.00001(@3k)]' + '/metrics.json')
 
     colors = ['#1F77B4', '#FF7F0E', '#2CA02C', '#D62728'] #blue, orange, green, red
     fig_1 = plt.figure()
@@ -102,13 +133,27 @@ def draw_train_val_best_lr():
     plt.xlabel('Iterations')
     plt.ylabel('Total loss')
     fig_1.tight_layout()
-    # plt.title('Train-val Losses')
-    # plt.savefig('/home/porthos/masters_thesis/writing/figures/results/train_val_loss_lr0.0001.pdf')
+    # plt.title('lr scheduled model losses')
+    plt.grid(b=True, linestyle=':')
+    # plt.savefig('/home/porthos/masters_thesis/writing/figures/results/train_val_loss_lr_sch.pdf')
+    
+    fig_2 = plt.figure()
+    plt.plot(
+        [x['iteration'] for x in metrics if x['iteration']%100==99], 
+        [x['bbox/AP50'] for x in metrics if x['iteration']%100==99], color='#D62728')
+
+    # plt.legend(['lr=0.00001', 'lr=0.0001', 'lr=0.001', 'lr=0.01'], loc='lower right')
+    plt.xlabel('Iterations')
+    # plt.ylabel('Accuracy')
+    fig_2.tight_layout()
+    # plt.title('lr scheduled model val AP50')
+    # plt.savefig('/home/porthos/masters_thesis/writing/figures/results/ap50_lr_sch.pdf')
+    plt.grid(b=True, linestyle=':')
     plt.show()
 
 if __name__ == '__main__':
     draw_multi_lr()
     draw_multi_ap50()
     draw_train_val_best_lr()
-
+    draw_lr_schedule_model()
 
