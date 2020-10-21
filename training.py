@@ -38,7 +38,7 @@ def do_training(train):
     cfg.DATASETS.TRAIN = ("cuboid_dataset_train",)
     cfg.DATASETS.TEST = ("cuboid_dataset_val",) #used by evaluator- do Not remove
     cfg.TEST.EVAL_PERIOD = 300 #number of iterations at which evaluation is run (Not relevant to validation loss calculation)
-    cfg.SOLVER.CHECKPOINT_PERIOD = 3000
+    cfg.SOLVER.CHECKPOINT_PERIOD = 6000
     cfg.DATALOADER.NUM_WORKERS = 2 #number of dataloading threads   
     # cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")  # Let training initialize from model zoo
     # cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml")  # Let training initialize from model zoo
@@ -53,18 +53,19 @@ def do_training(train):
     cfg.TEST.KEYPOINT_OKS_SIGMAS = [0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.107, 0.107] #values show the importance of each keypoint location
                                         #smaller=more precise - coco smallest and largest sigmas for human keypoints are used
                                         #6th & 7th are assumed to be the usually hidden ones when having a vertical front face
+    # cfg.TEST.KEYPOINT_OKS_SIGMAS = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.6]
     cfg.SOLVER.IMS_PER_BATCH = 2
-    cfg.SOLVER.BASE_LR = 0.001 #0.0001 #0.00025 
-    cfg.SOLVER.MAX_ITER = 5500  #300 iterations sufficient for mini dataset
-    cfg.SOLVER.GAMMA = 0.1 #lr decay factor (in multistep LR scheduler)
-    cfg.SOLVER.STEPS = [3500, 4500] #iteration milestones for reducing the lr (by gamma)
-    # cfg.SOLVER.WARMUP_FACTOR = 0.0001 #start with a fraction of the learning rate for a number of iterations (warmup)
-    # cfg.SOLVER.WARMUP_ITERS = 500 #warmup helps at initially avoiding learning irrelevant features
-    # cfg.SOLVER.NESTEROV = 0.9 
+    cfg.SOLVER.BASE_LR = 0.001 #0.0001 
+    cfg.SOLVER.MAX_ITER = 8000
+    # cfg.SOLVER.GAMMA = 0.1 #lr decay factor (in multistep LR scheduler)
+    # cfg.SOLVER.STEPS = [4000] #iteration milestones for reducing the lr (by gamma)
+    # cfg.SOLVER.WARMUP_FACTOR = 0.001 #start with a fraction of the learning rate for a number of iterations (warmup)
+    # cfg.SOLVER.WARMUP_ITERS = 1000 #warmup helps at initially avoiding learning irrelevant features
+    # cfg.SOLVER.NESTEROV = True
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 256 #128 #number of ROIs to sample for training Fast RCNN head. sufficient for mini dataset (default: 512)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (cuboid)
     cfg.DATALOADER.FILTER_EMPTY_ANNOTATIONS = True #False -> images without annotation are Not removed during training
-    cfg.MODEL.PIXEL_MEAN = [124.396, 121.658, 110.113] #BGR
+    cfg.MODEL.PIXEL_MEAN = [124.388, 121.619, 110.081] #BGR
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     my_trainer = MyTrainer(cfg)
     
@@ -109,17 +110,17 @@ class MyTrainer(DefaultTrainer):
     #     ))
     #     return hooks 
     
-    @classmethod
-    def build_train_loader(cls, cfg):
-        dataloader_outputs = build_detection_train_loader(cfg)
-        return dataloader_outputs
+    # @classmethod
+    # def build_train_loader(cls, cfg):
+    #     dataloader_outputs = build_detection_train_loader(cfg)
+    #     return dataloader_outputs
     
 
 class ValidationLoss(HookBase):
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg.clone()
-        # self.cfg.DATASETS.TRAIN = cfg.DATASETS.TEST
+        self.cfg.DATASETS.TRAIN = cfg.DATASETS.TEST
         self._loader = iter(build_detection_train_loader(self.cfg))
         
     def after_step(self):
