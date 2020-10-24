@@ -153,7 +153,7 @@ def check_visibilty(annot_file):
 
 
 if __name__ =='__main__':
-    annot_file_dir_1 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_hazem.json'
+    annot_file_dir_1 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_hazem_mod.json'
     annot_file_dir_2 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_ammar.json'
     annot_file_dir_3 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_pablo.json'
     annot_file_dir_4 = '/home/porthos/masters_thesis/datasets/final_dataset/annotations_anas.json'

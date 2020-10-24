@@ -185,17 +185,18 @@ def vis_get_areas(heights_pos, widths_pos, heights, widths, ratio_img_size, area
     fig_2.tight_layout()
     
     fig_3, ax_3 = plt.subplots()
-    n, bins, _ = plt.hist(areas, bins=10, log=True, align='mid', histtype='bar', ec='black')
+    n, bins, _ = plt.hist(areas, bins=10, log=True, align='left', histtype='bar', ec='black')
+    # print(bins)
     ax_3.set_xlabel('Image area (pixels)')
     ax_3.set_ylabel('Number of images')
     ax_3.set_title('Area of images')
-    ax_3.set_xticks(np.arange((500000), (14000000), (1000000)))
+    # ax_3.set_xticks(np.arange((500000), (14000000), (1000000)))
     # ax_3.xaxis.set_major_formatter(FormatStrFormatter('%0.0f'))
     # plt.ticklabel_format(style='sci', axis='x', scilimits=(-2,2))
     fig_3.tight_layout()
     # plt.savefig('/home/porthos/masters_thesis/writing/figures/dataset/hist_img_area.pdf')
     plt.show()
-
+    # bins=[500000, 1500000, 2500000, 3500000, 4500000, 5500000, 6500000, 7500000, 8500000, 9500000, 10500000]
 
 
 def get_annotator_stats(annot_files_dir_list):

@@ -15,8 +15,9 @@ from training import do_training
 
 
 def do_evaluation(dataset, trainer, cfg):
-    cfg.TEST.KEYPOINT_OKS_SIGMAS = [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.6] #TODO: tune evaluator
-    evaluator = COCOEvaluator(dataset, cfg, False, output_dir="./output/")
+    sigmas = [0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.107, 0.107] #TODO: tune evaluator
+    # evaluator = COCOEvaluator(dataset, cfg, False, output_dir="./output/")
+    evaluator = COCOEvaluator(dataset_name=dataset, tasks=("bbox","keypoints"), distributed=True, output_dir="./output/", use_fast_impl=True, kpt_oks_sigmas=sigmas)
     data_loader = build_detection_test_loader(cfg, dataset)
     print(inference_on_dataset(trainer.model, data_loader, evaluator)) #takes inputs (through the dataloader-2nd arg), 
                                        #outputs of the trained model(1st arg), and the method evaluation (evaluator-3rd arg)
@@ -24,6 +25,6 @@ def do_evaluation(dataset, trainer, cfg):
 
 if __name__=='__main__':
     trainer, cfg = do_training(train=False)
-    dataset = "cuboid_dataset_test"
+    dataset = "cuboid_dataset_val"
     do_evaluation(dataset, trainer, cfg)
 

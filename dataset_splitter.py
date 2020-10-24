@@ -21,6 +21,7 @@ def split_dataset(dataset_list, train_ratio, val_ratio):
     dataset (and not the entire dataset size). Each dataset is complemented with negative 
     images so that its desired size (determined by train_ratio and val_ratio) can be reached.
     '''
+        
     train_size = int(train_ratio * len(dataset_list))
     val_size = int(val_ratio * len(dataset_list))
     
@@ -45,13 +46,26 @@ def split_dataset(dataset_list, train_ratio, val_ratio):
         neg_train_val_dataset, neg_test_dataset = train_test_split(neg_dataset, train_size=neg_train_val_size, shuffle=True, random_state=42)
         neg_train_dataset, neg_val_dataset = train_test_split(neg_train_val_dataset, train_size=neg_train_size, shuffle=True, random_state=42)
         
-        train_dataset = pos_train_dataset + neg_train_dataset
-        val_dataset = pos_val_dataset + neg_val_dataset
-        test_dataset = pos_test_dataset + neg_test_dataset
+        ratio = 5/5
+        cut_idx_train_pos = int((ratio)*len(pos_train_dataset))
+        cut_idx_val_pos = int((ratio)*len(pos_val_dataset))
+        cut_idx_test_pos = int((ratio)*len(pos_test_dataset))
+        cut_idx_train_neg = int((ratio)*len(neg_train_dataset))
+        cut_idx_val_neg = int((ratio)*len(neg_val_dataset))
+        cut_idx_test_neg = int((ratio)*len(neg_test_dataset))
+        
+        train_dataset = pos_train_dataset[:cut_idx_train_pos] + neg_train_dataset[:cut_idx_train_neg]
+        val_dataset = pos_val_dataset[:cut_idx_val_pos] + neg_val_dataset[:cut_idx_val_neg]
+        test_dataset = pos_test_dataset[:cut_idx_test_pos] + neg_test_dataset[:cut_idx_test_neg]
     else:
-        train_dataset = pos_train_dataset
-        val_dataset = pos_val_dataset
-        test_dataset = pos_test_dataset
+        ratio = 5/5
+        cut_idx_train_pos = int((ratio)*len(pos_train_dataset))
+        cut_idx_val_pos = int((ratio)*len(pos_val_dataset))
+        cut_idx_test_pos = int((ratio)*len(pos_test_dataset))
+        
+        train_dataset = pos_train_dataset[:cut_idx_train_pos]
+        val_dataset = pos_val_dataset[:cut_idx_val_pos]
+        test_dataset = pos_test_dataset[:cut_idx_test_pos]
    
     return (train_dataset, val_dataset, test_dataset)
     

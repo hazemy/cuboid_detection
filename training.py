@@ -37,15 +37,17 @@ def do_training(train):
     # cfg.merge_from_file(model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_R_50_FPN_3x.yaml"))
     cfg.merge_from_file(model_zoo.get_config_file("Misc/scratch_mask_rcnn_R_50_FPN_3x_gn.yaml"))
     cfg.DATASETS.TRAIN = ("cuboid_dataset_train",)
-    cfg.DATASETS.TEST = ("cuboid_dataset_val",) #used by evaluator- do Not remove
-    cfg.TEST.EVAL_PERIOD = 30 #number of iterations at which evaluation is run (Not relevant to validation loss calculation)
-    cfg.SOLVER.CHECKPOINT_PERIOD = 6000
+    cfg.DATASETS.TEST = ("cuboid_dataset_val",) #used by evaluator- do Not remove!!!!
+    cfg.TEST.EVAL_PERIOD = 300 #number of iterations at which evaluation is run (Not relevant to validation loss calculation)
+    cfg.SOLVER.CHECKPOINT_PERIOD = 15000
     cfg.DATALOADER.NUM_WORKERS = 2 #number of dataloading threads   
     # cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")  # Let training initialize from model zoo
     # cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml")  # Let training initialize from model zoo
     # cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Keypoints/keypoint_rcnn_X_101_32x8d_FPN_3x.yaml")  # Let training initialize from model zoo
     # cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Keypoints/keypoint_rcnn_R_50_FPN_3x.yaml")  # Let training initialize from model zoo
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("Misc/scratch_mask_rcnn_R_50_FPN_3x_gn.yaml")
+    # cfg.MODEL.RESNETS.DEPTH = 101
+    # cfg.MODEL.RESNETS.RES2_OUT_CHANNELS = 64
     cfg.MODEL.MASK_ON = False
     cfg.MODEL.KEYPOINT_ON = True
     cfg.MODEL.ROI_BOX_HEAD.SMOOTH_L1_BETA = 0.5 #Keypoint AP degrades (though box AP improves) when using plain L1 loss (i.e: value = 0.0)
@@ -55,15 +57,15 @@ def do_training(train):
                                         #smaller=more precise - coco smallest and largest sigmas for human keypoints are used
                                         #6th & 7th are assumed to be the usually hidden ones when having a vertical front face
     # cfg.TEST.KEYPOINT_OKS_SIGMAS = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.6]
-    cfg.SOLVER.IMS_PER_BATCH = 2
-    cfg.SOLVER.BASE_LR = 0.001 #0.0001 
-    cfg.SOLVER.MAX_ITER = 8000
-    # cfg.SOLVER.GAMMA = 0.1 #lr decay factor (in multistep LR scheduler)
-    # cfg.SOLVER.STEPS = [3000] #iteration milestones for reducing the lr (by gamma)
-    # cfg.SOLVER.WARMUP_FACTOR = 0.001 #start with a fraction of the learning rate for a number of iterations (warmup)
-    # cfg.SOLVER.WARMUP_ITERS = 1000 #warmup helps at initially avoiding learning irrelevant features
+    cfg.SOLVER.IMS_PER_BATCH = 2 #1
+    cfg.SOLVER.BASE_LR = 0.001  
+    cfg.SOLVER.MAX_ITER = 3000 #5000
+    cfg.SOLVER.GAMMA = 0.1 #lr decay factor (in multistep LR scheduler)
+    cfg.SOLVER.STEPS = [1000] #iteration milestones for reducing the lr (by gamma) #3000
+    cfg.SOLVER.WARMUP_FACTOR = 0 #start with a fraction of the learning rate for a number of iterations (warmup)
+    cfg.SOLVER.WARMUP_ITERS = 0 #warmup helps at initially avoiding learning irrelevant features
     # cfg.SOLVER.NESTEROV = True
-    # cfg.SOLVER.WEIGHT_DECAY = 0.0001
+    # cfg.SOLVER.WEIGHT_DECAY = 0
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 256 #128 #number of ROIs to sample for training Fast RCNN head. sufficient for mini dataset (default: 512)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (cuboid)
     cfg.DATALOADER.FILTER_EMPTY_ANNOTATIONS = True #False -> images without annotation are Not removed during training
@@ -102,17 +104,17 @@ class MyTrainer(DefaultTrainer):
         evaluator = COCOEvaluator(dataset_name=dataset_name, tasks=("bbox","keypoints"), distributed=True, output_dir=output_folder, use_fast_impl=True, kpt_oks_sigmas=sigmas)
         return evaluator
     
-    @classmethod
-    def build_optimizer(cls, cfg, model):
-        params = get_default_optimizer_params(
-            model,
-            base_lr=cfg.SOLVER.BASE_LR,
-            weight_decay=cfg.SOLVER.WEIGHT_DECAY,
-            weight_decay_norm=cfg.SOLVER.WEIGHT_DECAY_NORM,
-            bias_lr_factor=cfg.SOLVER.BIAS_LR_FACTOR,
-            weight_decay_bias=cfg.SOLVER.WEIGHT_DECAY_BIAS,
-        )
-        return torch.optim.Adam(params, lr=cfg.SOLVER.BASE_LR, betas=(0.9, 0.999), eps=1e-08, weight_decay=cfg.SOLVER.WEIGHT_DECAY, amsgrad=False)
+    # @classmethod
+    # def build_optimizer(cls, cfg, model):
+    #     params = get_default_optimizer_params(
+    #         model,
+    #         base_lr=cfg.SOLVER.BASE_LR,
+    #         weight_decay=cfg.SOLVER.WEIGHT_DECAY,
+    #         weight_decay_norm=cfg.SOLVER.WEIGHT_DECAY_NORM,
+    #         bias_lr_factor=cfg.SOLVER.BIAS_LR_FACTOR,
+    #         weight_decay_bias=cfg.SOLVER.WEIGHT_DECAY_BIAS,
+    #     )
+    #     return torch.optim.Adam(params, lr=cfg.SOLVER.BASE_LR, betas=(0.9, 0.999), eps=1e-08, weight_decay=cfg.SOLVER.WEIGHT_DECAY, amsgrad=False)
 
     
     # def build_hooks(self):
@@ -138,7 +140,7 @@ class ValidationLoss(HookBase):
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg.clone() # cfg can be modified by model
-        self.cfg.DATASETS.TRAIN = cfg.DATASETS.TEST
+        self.cfg.DATASETS.TRAIN = ("cuboid_dataset_val",)
         self._loader = iter(build_detection_train_loader(self.cfg))
         
     def after_step(self):
