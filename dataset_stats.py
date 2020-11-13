@@ -16,6 +16,7 @@ from matplotlib.ticker import FormatStrFormatter
 from matplotlib import rc
 plt.rcParams['mathtext.fontset'] = 'stix'
 plt.rcParams['font.family'] = 'STIXGeneral'
+# plt.rcParams['font.size'] = '13'
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 ## for Palatino and other serif fonts use:
 #rc('font',**{'family':'serif','serif':['Palatino']})
@@ -166,8 +167,9 @@ def vis_get_areas(heights_pos, widths_pos, heights, widths, ratio_img_size, area
                            histtype='bar', ec='black')
     plt.xlabel('Percent of image size')
     plt.ylabel('Number of instances')
-    plt.title('Histogram of instance size')
+    # plt.title('Histogram of instance size')
     fig_1.tight_layout()
+    # plt.grid(b=True, linestyle=':', axis='y')
     # plt.savefig('/home/porthos/masters_thesis/writing/figures/dataset/hist_img_size.pdf')
     plt.show()
 
@@ -185,12 +187,12 @@ def vis_get_areas(heights_pos, widths_pos, heights, widths, ratio_img_size, area
     fig_2.tight_layout()
     
     fig_3, ax_3 = plt.subplots()
-    n, bins, _ = plt.hist(areas, bins=10, log=True, align='left', histtype='bar', ec='black')
+    n, bins, _ = plt.hist(areas, bins=12, log=True, align='mid', histtype='bar', ec='black')
     # print(bins)
-    ax_3.set_xlabel('Image area (pixels)')
+    ax_3.set_xlabel('Image area [pixels]')
     ax_3.set_ylabel('Number of images')
-    ax_3.set_title('Area of images')
-    # ax_3.set_xticks(np.arange((500000), (14000000), (1000000)))
+    # ax_3.set_title('Area of images')
+    ax_3.set_xticks(np.arange((500000), (13000000), (1000000)))
     # ax_3.xaxis.set_major_formatter(FormatStrFormatter('%0.0f'))
     # plt.ticklabel_format(style='sci', axis='x', scilimits=(-2,2))
     fig_3.tight_layout()
@@ -228,7 +230,7 @@ def vis_get_annotator_stats(annotator_total_pos, annotator_total_inst, annotator
     ax.set_ylabel('Total labeled')
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
-    ax.set_title('Annotators workload') 
+    # ax.set_title('Annotators workload') 
     ax.set_ylim([0,580])
     ax.legend()  
     autolabel(ax, rects1)
@@ -242,9 +244,10 @@ def vis_get_annotator_stats(annotator_total_pos, annotator_total_inst, annotator
     ax2.set_xticklabels(labels)
     # fig2.subplots_adjust(left=0.08, right=0.98, bottom=0.05, top=0.9,
     #                 hspace=0.4, wspace=0.3)
-    ax2.set_title('Annotation time') 
+    # ax2.set_title('Annotation time') 
     ax2.set_xlabel('Annotator number')
-    ax2.set_ylabel('Time (sec)')
+    ax2.set_ylabel('Time [sec]')
+    fig2.tight_layout()
     # plt.savefig('/home/porthos/masters_thesis/writing/figures/dataset/annot_time.pdf')
     plt.show()
     
