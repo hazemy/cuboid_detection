@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Jul  9 15:43:01 2020
 
-@author: porthos
-"""
 
 
 from sklearn.model_selection import train_test_split

@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Oct 16 18:18:16 2020
 
-@author: porthos
-"""
 
 from annot_processor import merge_annot_files, get_unique, amend_dir, remove_faulty
 from format_converter import convert2detectron_format

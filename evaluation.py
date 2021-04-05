@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Jul 10 01:38:41 2020
 
-@author: porthos
-"""
 
 
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset

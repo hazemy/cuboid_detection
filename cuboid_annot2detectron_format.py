@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Jul  4 17:51:02 2020
-
-@author: porthos
-"""
 
 
 from mat2cuboid_annot import mat2cuboid_annot

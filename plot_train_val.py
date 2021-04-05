@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Sep 14 02:09:41 2020
 
-@author: porthos
-"""
 
 
 import json

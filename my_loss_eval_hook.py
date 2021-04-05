@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 22 14:40:54 2020
 
-@author: porthos
-"""
 
 
 from detectron2.engine.hooks import HookBase

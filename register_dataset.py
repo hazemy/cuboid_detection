@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Jul  5 04:22:26 2020
 
-@author: porthos
-"""
 
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from format_converter import convert2detectron_format
